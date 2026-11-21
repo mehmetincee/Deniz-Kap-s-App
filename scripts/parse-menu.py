@@ -35,6 +35,36 @@ BEVERAGE_SECTIONS = [
 BEVERAGE_TITLES = {"MILKSHAKE &": "Milkshake & Smoothie", "MEYVELİ MİNERALLI SU": "Meyveli Maden Suyu"}
 
 
+# "Kahvaltını Zenginleştir" bölümü QR menüde TR/EN ve fiyat tek satırda, düzensiz
+# satır kırılımlarıyla yazılmış; güvenilir ayrıştırılamadığı için tablo olarak tutulur.
+BREAKFAST_EXTRAS = [
+    ("Peynir Tabağı (2 kişilik)", "Cheese Plate for 2", ["MK"], 400),
+    ("Peynir Tabağı (4 kişilik)", "Cheese Plate for 4", ["MK"], 750),
+    ("Salatalık & Domates (2 kişilik)", "Tomato & Cucumber for 2", [], 150),
+    ("Salatalık & Domates (4 kişilik)", "Tomato & Cucumber for 4", [], 280),
+    ("Mevsim Reçeli", "Seasonal Jam", [], 80),
+    ("Çıtır Kabak ve Tahin", "Crispy Pumpkin & Tahini", [], 200),
+    ("Çam Balı", "Pine Honey", [], 100),
+    ("Bal & Kaymak", "Honey & Cream", ["MK"], 225),
+    ("Tereyağı", "Butter", ["MK"], 150),
+    ("Kaymak", "Clotted Cream", ["MK"], 135),
+    ("Çikolatalı Fındık Ezmesi", "Chocolate Hazelnut Spread", ["TN"], 75),
+    ("Çemen", "Spiced Paste", ["TN"], 75),
+    ("Karışık Yeşillik", "Mixed Greens", [], 175),
+    ("Avokado", "Avocado", [], 150),
+    ("Siyah Zeytin", "Black Olives", [], 75),
+    ("Dilme / Kırma Zeytin", "Green Olives", [], 80),
+    ("Ege Ezme", "Aegean Spread", ["MK"], 75),
+    ("Haşlanmış Yumurta", "Boiled Egg", ["EG"], 60),
+    ("Pişi", "Pishi Pastry", ["WH"], 80),
+    ("Bazlama", "Flatbread", ["WH"], 150),
+    ("Glutensiz Ekmek", "Gluten-free Bread", [], 150),
+    ("Simit", "Sesame Bagel", ["WH", "SE", "SP"], 100),
+    ("Soslu Biber", "Pepper with Tomato Sauce", [], 75),
+    ("Sahine", "Honey, sesame & butter spread", ["MK", "SE"], 75),
+]
+
+
 def slug(s: str) -> str:
     s = s.replace("ı", "i").replace("İ", "i")
     s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
@@ -165,9 +195,14 @@ def build_item(buf, price_list, service):
         item["price"] = price_list[0]
     else:
         item["price"] = price_list[0]
-    if rest:
+    rest = [re.sub(r"\s+", " ", ALLERGEN_RE.sub("", r)).strip() for r in rest]
+    if name_en and (len(name_en) > 48 or " - " in name_en):
+        # QR menüde İngilizce ad yerine doğrudan İngilizce açıklama yazılmış ürünler
+        rest = rest[:1] + [name_en] + rest[1:] if rest else [None, name_en]
+        item["nameEn"] = None
+    if rest and rest[0]:
         item["description"] = rest[0]
-    if len(rest) > 1:
+    if len(rest) > 1 and rest[1]:
         item["descriptionEn"] = rest[1]
     return item
 
@@ -216,8 +251,12 @@ def main():
     src = Path(sys.argv[1])
     menus = []
     for key, (sid, title, hours) in SERVICES.items():
-        menus.append({"id": sid, "title": title, "hours": hours,
-                      "sections": parse_food((src / f"{key}.txt").read_text(), sid)})
+        sections = parse_food((src / f"{key}.txt").read_text(), sid)
+        for sec in sections:
+            if sec["id"] == "kahvalti-kahvaltini-zenginlestir":
+                sec["items"] = [{"id": slug(f"kahvalti-ekstra-{n}"), "name": n, "nameEn": en, "allergens": a, "price": p}
+                                for n, en, a, p in BREAKFAST_EXTRAS]
+        menus.append({"id": sid, "title": title, "hours": hours, "sections": sections})
     menus.append({"id": "icecek", "title": "İçecek", "hours": "Gün boyu",
                   "sections": parse_beverages((src / "beverages.txt").read_text())})
     json.dump(menus, sys.stdout, ensure_ascii=False, indent=1)

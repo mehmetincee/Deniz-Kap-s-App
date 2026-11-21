@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -56,6 +56,17 @@ export type Activity = {
   amount?: number;
 };
 
+export type Coupon = {
+  id: string;
+  code: string;
+  title: string;
+  cost: number;
+  createdAt: string;
+  /** Kupon 30 gün geçerlidir. */
+  expiresAt: string;
+  used: boolean;
+};
+
 export type User = {
   name: string;
   phone: string;
@@ -68,9 +79,11 @@ type State = {
   user: User | null;
   pearls: number;
   wallet: number;
-  /** Son 12 ay harcaması — seviye hesabı için. */
-  yearSpend: number;
   activity: Activity[];
+  coupons: Coupon[];
+  favorites: string[];
+  /** Hoş geldin hediyesi verilmiş telefonlar (çıkış yapınca silinmez; tekrar hediye alınamaz). */
+  welcomed: string[];
   cart: CartLine[];
   orders: Order[];
   reservations: Reservation[];
@@ -90,8 +103,11 @@ type State = {
   placeOrder: (o: Omit<Order, 'id' | 'createdAt' | 'pearlsEarned' | 'status' | 'lines'>) => Order;
   advanceOrder: (id: string) => void;
 
+  reorder: (order: Order) => void;
+
   topUp: (amount: number, bonus: number) => void;
-  redeem: (title: string, cost: number) => boolean;
+  redeem: (title: string, cost: number) => Coupon | null;
+  toggleFavorite: (productId: string) => void;
 
   addReservation: (r: Omit<Reservation, 'id' | 'status'>) => Reservation;
   cancelReservation: (id: string) => void;
@@ -111,37 +127,77 @@ export function tierById(id: TierId) {
   return tiers.find((t) => t.id === id)!;
 }
 
+/**
+ * Siparişin anlık durumu.
+ * DEMO: Backend yokken durum, siparişin üzerinden geçen süreden türetilir
+ * (gerçekte POS/mutfak ekranından push ile gelir). Böylece eski siparişler
+ * ana sayfada sonsuza dek "alındı" görünmez.
+ */
+export function liveStatus(order: Order, now = Date.now()): OrderStatus {
+  if (order.status === 'teslim') return 'teslim';
+  const sec = (now - new Date(order.createdAt).getTime()) / 1000;
+  if (sec < 20) return 'alindi';
+  if (sec < 60) return 'hazirlaniyor';
+  if (sec < 120) return 'hazir';
+  return 'teslim';
+}
+
+/** Son 12 aydaki sipariş harcaması: seviye buna göre belirlenir ve zamanla düşer. */
+export function spendLast12Months(orders: Order[], now = Date.now()) {
+  const from = now - 365 * 24 * 3600 * 1000;
+  return orders.filter((o) => new Date(o.createdAt).getTime() >= from).reduce((s, o) => s + o.subtotal, 0);
+}
+
+export function useTier() {
+  const orders = useStore((s) => s.orders);
+  const spend = spendLast12Months(orders);
+  return { spend, ...tierFor(spend) };
+}
+
 export const cartTotal = (lines: CartLine[]) => lines.reduce((s, l) => s + l.unitPrice * l.qty, 0);
 export const cartCount = (lines: CartLine[]) => lines.reduce((s, l) => s + l.qty, 0);
+
+/** Kişiye ait veriler: çıkışta sıfırlanır. */
+const initialData = {
+  user: null as User | null,
+  pearls: 0,
+  wallet: 0,
+  activity: [] as Activity[],
+  coupons: [] as Coupon[],
+  favorites: [] as string[],
+  cart: [] as CartLine[],
+  orders: [] as Order[],
+  reservations: [] as Reservation[],
+  orderMode: 'masa' as OrderMode,
+  table: '',
+};
 
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
-      user: null,
-      pearls: 0,
-      wallet: 0,
-      yearSpend: 0,
-      activity: [],
-      cart: [],
-      orders: [],
-      reservations: [],
-      orderMode: 'masa',
-      table: '',
+      ...initialData,
+      welcomed: [],
       setOrderContext: (patch) => set(patch),
 
       signIn: (name, phone) =>
-        set((s) => ({
-          user: {
+        set((s) => {
+          const user = {
             name,
             phone,
             memberNo: `DK${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`,
             joinedAt: new Date().toISOString(),
-          },
-          // Hoş geldin hediyesi: ilk çay bizden
-          pearls: s.pearls + 75,
-          activity: [{ id: uid('A'), at: new Date().toISOString(), title: 'Hoş geldin hediyesi', pearls: 75 }, ...s.activity],
-        })),
-      signOut: () => set({ user: null, cart: [] }),
+          };
+          // Hoş geldin hediyesi (ilk çay bizden) her telefona yalnızca bir kez
+          if (s.welcomed.includes(phone)) return { user };
+          return {
+            user,
+            welcomed: [...s.welcomed, phone],
+            pearls: s.pearls + 75,
+            activity: [{ id: uid('A'), at: new Date().toISOString(), title: 'Hoş geldin hediyesi', pearls: 75 }, ...s.activity],
+          };
+        }),
+      // Aynı cihazda başka biri giriş yaparsa önceki kişinin bakiyesi, kuponları ve siparişleri görünmemeli.
+      signOut: () => set({ ...initialData }),
       updateProfile: (patch) => set((s) => (s.user ? { user: { ...s.user, ...patch } } : s)),
 
       addToCart: (p, { optionId, qty, note }) =>
@@ -165,7 +221,7 @@ export const useStore = create<State>()(
 
       placeOrder: (o) => {
         const s = get();
-        const { current } = tierFor(s.yearSpend);
+        const { current } = tierFor(spendLast12Months(s.orders));
         const earned = Math.floor((o.total - o.tip) * current.rate);
         const order: Order = {
           ...o,
@@ -181,7 +237,6 @@ export const useStore = create<State>()(
           cart: [],
           wallet: o.payment === 'cuzdan' ? s.wallet - o.total : s.wallet,
           pearls: s.pearls - o.pearlsUsed + earned,
-          yearSpend: s.yearSpend + o.subtotal,
           activity: [
             { id: uid('A'), at: now, title: `Sipariş #${order.id.slice(-5)}`, pearls: earned - o.pearlsUsed, amount: -o.total },
             ...s.activity,
@@ -199,6 +254,17 @@ export const useStore = create<State>()(
           }),
         })),
 
+      reorder: (order) =>
+        set((s) => {
+          const cart = [...s.cart];
+          for (const l of order.lines) {
+            const i = cart.findIndex((c) => c.key === l.key);
+            if (i >= 0) cart[i] = { ...cart[i], qty: cart[i].qty + l.qty };
+            else cart.push({ ...l });
+          }
+          return { cart, orderMode: order.mode, table: order.table ?? s.table };
+        }),
+
       topUp: (amount, bonus) =>
         set((s) => ({
           wallet: s.wallet + amount,
@@ -206,13 +272,29 @@ export const useStore = create<State>()(
           activity: [{ id: uid('A'), at: new Date().toISOString(), title: 'Cüzdana yükleme', amount, pearls: bonus }, ...s.activity],
         })),
       redeem: (title, cost) => {
-        if (get().pearls < cost) return false;
+        if (get().pearls < cost) return null;
+        const now = new Date();
+        const coupon: Coupon = {
+          id: uid('K'),
+          // Karışmayan karakterlerle 6 haneli kod (0/O, 1/I yok)
+          code: Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPRSTUVYZ23456789'[Math.floor(Math.random() * 29)]).join(''),
+          title,
+          cost,
+          createdAt: now.toISOString(),
+          expiresAt: new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString(),
+          used: false,
+        };
         set((s) => ({
           pearls: s.pearls - cost,
-          activity: [{ id: uid('A'), at: new Date().toISOString(), title: `Ödül: ${title}`, pearls: -cost }, ...s.activity],
+          coupons: [coupon, ...s.coupons],
+          activity: [{ id: uid('A'), at: now.toISOString(), title: `Ödül: ${title}`, pearls: -cost }, ...s.activity],
         }));
-        return true;
+        return coupon;
       },
+      toggleFavorite: (productId) =>
+        set((s) => ({
+          favorites: s.favorites.includes(productId) ? s.favorites.filter((f) => f !== productId) : [productId, ...s.favorites],
+        })),
 
       addReservation: (r) => {
         const res: Reservation = { ...r, id: uid('R'), status: 'beklemede' };
@@ -222,17 +304,29 @@ export const useStore = create<State>()(
       cancelReservation: (id) =>
         set((s) => ({ reservations: s.reservations.map((r) => (r.id === id ? { ...r, status: 'iptal' } : r)) })),
     }),
-    { name: 'deniz-kapisi', storage: createJSONStorage(() => AsyncStorage), version: 1 },
+    {
+      name: 'deniz-kapisi',
+      storage: createJSONStorage(() => AsyncStorage),
+      version: 2,
+      // v1 → v2: yearSpend kaldırıldı (artık siparişlerden hesaplanıyor), kupon/favori eklendi
+      migrate: (persisted, version) => {
+        const old = (persisted ?? {}) as Record<string, unknown>;
+        if (version < 2) {
+          delete old.yearSpend;
+          const user = old.user as User | null | undefined;
+          return { ...initialData, ...old, coupons: [], favorites: [], welcomed: user ? [user.phone] : [] } as unknown as State;
+        }
+        return old as unknown as State;
+      },
+    },
   ),
 );
 
 /** Kalıcı depodan okuma tamamlandı mı? (Yönlendirme kararları bundan sonra verilmeli.) */
 export function useHydrated() {
-  const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
-  useEffect(() => {
-    const unsub = useStore.persist.onFinishHydration(() => setHydrated(true));
-    setHydrated(useStore.persist.hasHydrated());
-    return unsub;
-  }, []);
-  return hydrated;
+  return useSyncExternalStore(
+    (onChange) => useStore.persist.onFinishHydration(onChange),
+    () => useStore.persist.hasHydrated(),
+    () => false,
+  );
 }

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { Icon } from '../../components/Icon';
 import { MemberCard } from '../../components/MemberCard';
+import { useNow } from '../../hooks/useNow';
 import { Card, Chip, SectionTitle, Screen, T, tap } from '../../components/ui';
 import { rewards, tiers, topUpOptions } from '../../config/restaurant';
 import { formatPrice } from '../../data/menu';
-import { tierFor, useStore } from '../../store';
+import { payWithCard } from '../../services/payment';
+import { useStore, useTier } from '../../store';
 import { colors, fonts, radius, space } from '../../theme';
 
 function notify(title: string, msg: string) {
@@ -29,10 +31,24 @@ function useRotatingCode(memberNo: string) {
 }
 
 export default function LoyaltyCard() {
-  const { user, pearls, wallet, yearSpend, activity, topUp, redeem } = useStore();
+  const { user, pearls, wallet, activity, coupons, topUp, redeem } = useStore();
   const code = useRotatingCode(user?.memberNo ?? 'MISAFIR');
   const [amount, setAmount] = useState<number>(topUpOptions[1].amount);
-  const { current } = tierFor(yearSpend);
+  const [loading, setLoading] = useState(false);
+  const { current } = useTier();
+  const now = useNow();
+  const activeCoupons = coupons.filter((c) => !c.used && new Date(c.expiresAt).getTime() > now);
+
+  async function doTopUp() {
+    const o = topUpOptions.find((x) => x.amount === amount)!;
+    setLoading(true);
+    // Yükleme de gerçek bir kart ödemesidir; ödeme onaylanmadan bakiye eklenmez.
+    const res = await payWithCard(o.amount);
+    setLoading(false);
+    if (!res.ok) return notify('Yükleme yapılamadı', res.message);
+    topUp(o.amount, o.bonus);
+    notify('Yükleme başarılı', `${formatPrice(o.amount)} yüklendi, ${o.bonus} İnci kazandınız.`);
+  }
 
   return (
     <Screen bottomInset={40}>
@@ -64,19 +80,31 @@ export default function LoyaltyCard() {
             </Pressable>
           ))}
         </View>
-        <Pressable
-          onPress={() => {
-            tap();
-            const o = topUpOptions.find((x) => x.amount === amount)!;
-            topUp(o.amount, o.bonus);
-            notify('Yükleme başarılı', `${formatPrice(o.amount)} yüklendi, ${o.bonus} İnci kazandınız. (Demo)`);
-          }}
-          style={styles.topUpButton}
-        >
-          <Icon name="wallet" size={18} color={colors.white} />
-          <Text style={styles.topUpButtonText}>{formatPrice(amount)} yükle</Text>
+        <Pressable onPress={() => (tap(), doTopUp())} disabled={loading} style={[styles.topUpButton, loading && { opacity: 0.6 }]}>
+          {loading ? <ActivityIndicator color={colors.white} /> : <Icon name="wallet" size={18} color={colors.white} />}
+          <Text style={styles.topUpButtonText}>{loading ? 'Ödeme bekleniyor…' : `${formatPrice(amount)} yükle`}</Text>
         </Pressable>
+        <T v="small" style={{ marginTop: space.sm }}>
+          Kullanılmayan bakiye, talep halinde yükleme yapılan karta iade edilir.
+        </T>
       </View>
+
+      {activeCoupons.length > 0 && (
+        <View style={{ marginTop: space.xxl }}>
+          <SectionTitle label="Garsonunuza gösterin" title="Kuponlarım" />
+          {activeCoupons.map((c) => (
+            <View key={c.id} style={styles.coupon}>
+              <View style={{ flex: 1 }}>
+                <T v="h3">{c.title}</T>
+                <T v="small">Son gün {new Date(c.expiresAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</T>
+              </View>
+              <Text style={styles.couponCode} selectable>
+                {c.code}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={{ marginTop: space.xxl }}>
         <SectionTitle label="İnci ile al" title="Ödüller" />
@@ -96,7 +124,8 @@ export default function LoyaltyCard() {
                 active={enough}
                 onPress={() => {
                   if (!enough) return notify('Yetersiz İnci', `${r.cost - pearls} İnci daha biriktirin.`);
-                  if (redeem(r.title, r.cost)) notify('Afiyet olsun!', `${r.title} için kodunuz garsonunuza iletildi. (Demo)`);
+                  const c = redeem(r.title, r.cost);
+                  if (c) notify('Kuponunuz hazır', `${r.title} için kodunuz: ${c.code}\nKuponlarım bölümünde 30 gün geçerli.`);
                 }}
               />
             </View>
@@ -170,6 +199,19 @@ const styles = StyleSheet.create({
     gap: space.sm,
   },
   topUpButtonText: { fontFamily: fonts.bodySemi, color: colors.white, fontSize: 15 },
+  coupon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.lg,
+    marginBottom: space.sm,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.sea,
+    backgroundColor: colors.foam,
+  },
+  couponCode: { fontFamily: fonts.bodyBold, fontSize: 18, letterSpacing: 3, color: colors.seaDeep },
   reward: {
     flexDirection: 'row',
     alignItems: 'center',

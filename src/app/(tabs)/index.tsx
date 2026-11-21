@@ -8,7 +8,7 @@ import { MemberCard } from '../../components/MemberCard';
 import { Card, Screen, SectionTitle, T, tap } from '../../components/ui';
 import { restaurant } from '../../config/restaurant';
 import { currentServiceId, featured, formatPrice, services } from '../../data/menu';
-import { useStore } from '../../store';
+import { liveStatus, useStore } from '../../store';
 import { colors, fonts, radius, shadow, space } from '../../theme';
 
 function greeting(h = new Date().getHours()) {
@@ -27,7 +27,7 @@ const actions: { icon: IconName; title: string; sub: string; go: () => void }[] 
 
 export default function Home() {
   const user = useStore((s) => s.user);
-  const activeOrder = useStore((s) => s.orders.find((o) => o.status !== 'teslim'));
+  const activeOrder = useStore((s) => s.orders.find((o) => liveStatus(o) !== 'teslim'));
   const service = services.find((s) => s.id === currentServiceId())!;
   const picks = featured();
 
@@ -52,7 +52,7 @@ export default function Home() {
           <Card style={styles.orderCard} onPress={() => router.push({ pathname: '/order/[id]', params: { id: activeOrder.id } })}>
             <View style={styles.pulse} />
             <View style={{ flex: 1 }}>
-              <T v="h3">Siparişiniz {statusText[activeOrder.status]}</T>
+              <T v="h3">Siparişiniz {statusText[liveStatus(activeOrder)]}</T>
               <T v="small">
                 {activeOrder.mode === 'masa' ? `Masa ${activeOrder.table}` : `Gel-Al · ${activeOrder.pickupTime}`} · #{activeOrder.id.slice(-5)}
               </T>
@@ -102,7 +102,7 @@ export default function Home() {
           <Image source={require('../../../assets/images/heritage.jpg')} style={StyleSheet.absoluteFill} contentFit="cover" />
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(20,24,40,0.42)' }]} />
           <Text style={styles.storyKicker}>HİKAYEMİZ</Text>
-          <Text style={styles.storyTitle}>1971'den beri{'\n'}üç kuşak, tek sofra.</Text>
+          <Text style={styles.storyTitle}>1971’den beri{'\n'}üç kuşak, tek sofra.</Text>
           <Text style={styles.storyLink}>Devamını oku →</Text>
         </Pressable>
 

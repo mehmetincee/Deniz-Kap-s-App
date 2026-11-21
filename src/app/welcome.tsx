@@ -20,7 +20,8 @@ export default function Welcome() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const digits = phone.replace(/\D/g, '');
+  // "0532…", "+90 532…" ve "532…" biçimlerinin hepsini 10 haneye indir
+  const digits = phone.replace(/\D/g, '').replace(/^(90|0)(?=5\d{9}$)/, '');
 
   async function sendCode() {
     setBusy(true);
@@ -85,14 +86,14 @@ export default function Welcome() {
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
-                maxLength={14}
+                maxLength={17}
                 style={{ flex: 1, fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.ink, height: 54 }}
                 autoComplete="tel"
                 textContentType="telephoneNumber"
               />
             </View>
             <T v="small" style={{ marginTop: space.md }}>
-              Devam ederek Üyelik Sözleşmesi'ni ve KVKK Aydınlatma Metni'ni kabul etmiş olursunuz.
+              Devam ederek Üyelik Sözleşmesi’ni ve KVKK Aydınlatma Metni’ni kabul etmiş olursunuz.
             </T>
             <View style={{ flex: 1 }} />
             <Button title="Kod gönder" onPress={sendCode} loading={busy} disabled={name.trim().length < 2 || digits.length !== 10} />
@@ -102,7 +103,7 @@ export default function Welcome() {
             <T v="h1" style={{ marginTop: space.xl }}>
               Doğrulama kodu
             </T>
-            <T style={{ marginTop: space.sm }}>+90 {phone} numarasına gönderdiğimiz 4 haneli kodu girin.</T>
+            <T style={{ marginTop: space.sm }}>+90 {digits} numarasına gönderdiğimiz 4 haneli kodu girin.</T>
             <TextInput
               value={code}
               onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 4))}

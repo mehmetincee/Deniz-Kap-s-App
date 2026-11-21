@@ -1,3 +1,4 @@
+import { serviceHours } from '../config/restaurant';
 import generated from './menu.generated.json';
 
 export type AllergenCode =
@@ -44,7 +45,7 @@ const images: Record<string, number> = {
 const imageByName: [RegExp, keyof typeof images][] = [
   [/burger/i, 'burger'],
   [/sahanda yumurta|menemen|omlet/i, 'eggs'],
-  [/çipura|levrek|somon|balı/i, 'fish'],
+  [/çipura|levrek|somon|balığı/i, 'fish'],
   [/meze|serpme|kahvaltı tabağı|^tabak$/i, 'mezze'],
   [/börek|bazlama|ekmek|tost/i, 'bread'],
   [/^kabak$/i, 'pumpkin'],
@@ -96,6 +97,11 @@ function enhance(service: Service): Service {
     items: s.items.map((p) => {
       const imageKey = imageByName.find(([re]) => re.test(p.name))?.[1];
       const out: Product = { ...p, image: imageKey ? images[imageKey] : undefined };
+      // QR menüde bazı ürünlerde İngilizce ad yerine porsiyon notu yazılmış: "(4 parça / pieces)"
+      if (p.nameEn?.startsWith('(')) {
+        out.description = [p.nameEn, p.description].filter(Boolean).join(' ');
+        out.nameEn = null;
+      }
       if (p.name.startsWith('Dana Bonfile')) {
         out.options = sauces;
         out.optionsTitle = 'Sos seçimi';
@@ -121,12 +127,47 @@ export function getProduct(id: string): Product | undefined {
   return index.get(id);
 }
 
+/** Ürünün ait olduğu servis (id öneki: kahvalti-, oglen-, aksam-, tatli-, icecek-, cocuk-). */
+export function serviceOf(productId: string) {
+  return productId.split('-')[0];
+}
+
+const minutes = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+/** Şu an mutfak sipariş alıyor mu? */
+export function kitchenOpen(date = new Date()) {
+  const now = date.getHours() * 60 + date.getMinutes();
+  return now >= minutes(serviceHours.kitchen.from) && now < minutes(serviceHours.kitchen.to);
+}
+
+/**
+ * Ürün şu an (veya verilen saatte) sipariş edilebilir mi?
+ * Dönüş: null → edilebilir; metin → neden edilemediği.
+ */
+export function orderBlockReason(productId: string, date = new Date()): string | null {
+  if (!kitchenOpen(date)) {
+    return `Mutfağımız ${serviceHours.kitchen.from}–${serviceHours.kitchen.to} arası sipariş alıyor.`;
+  }
+  const w = serviceHours[serviceOf(productId) as keyof typeof serviceHours];
+  if (!w) return null;
+  const now = date.getHours() * 60 + date.getMinutes();
+  if (now < minutes(w.from) || now >= minutes(w.to)) {
+    const title = services.find((s) => s.id === serviceOf(productId))?.title ?? 'Bu';
+    return `${title} menüsü ${w.from}–${w.to} arası servis ediliyor.`;
+  }
+  return null;
+}
+
 /** Saate göre o an servis edilen menü. */
 export function currentServiceId(date = new Date()): string {
-  const h = date.getHours();
-  if (h >= 9 && h < 12) return 'kahvalti';
-  if (h >= 12 && h < 18) return 'oglen';
-  return 'aksam';
+  const now = date.getHours() * 60 + date.getMinutes();
+  for (const id of ['kahvalti', 'oglen', 'aksam'] as const) {
+    if (now >= minutes(serviceHours[id].from) && now < minutes(serviceHours[id].to)) return id;
+  }
+  return now < minutes(serviceHours.kahvalti.from) ? 'kahvalti' : 'aksam';
 }
 
 /** Ana sayfada öne çıkan ürünler (şefin seçimi) — ada göre eşleşir. */

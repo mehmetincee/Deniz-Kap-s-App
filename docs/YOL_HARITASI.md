@@ -59,3 +59,5 @@ Gerekenler:
 - İnci oranları (%3/%5/%7) ve seviye eşikleri (15.000 ₺ / 40.000 ₺) uygun mu?
 - Şezlong numaralandırması var mı? Plaj servisi uygulamadan alınacak mı?
 - Alkollü içecek siparişinin masada kabulü için hukuki görüş.
+- Kahvaltı ve akşam servis saatleri doğru mu? Uygulama şu an kahvaltıyı 09:00–12:00, akşamı 18:00–23:00 kabul ediyor (`src/config/restaurant.ts` → `serviceHours`).
+- Cüzdan bakiyesi iade kuralı (Espressolab'ın en çok şikayet aldığı konu) yasal metne nasıl yazılacak?

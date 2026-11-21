@@ -2,13 +2,14 @@ import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { tierFor, useStore } from '../store';
+import { useStore, useTier } from '../store';
 import { colors, fonts, radius, space } from '../theme';
 
 /** Sadakat kartı: lacivert zemin, dalga çizgileri, İnci bakiyesi ve seviye ilerlemesi. */
 export function MemberCard({ compact }: { compact?: boolean }) {
-  const { user, pearls, yearSpend } = useStore();
-  const { current, next, progress } = tierFor(yearSpend);
+  const user = useStore((s) => s.user);
+  const pearls = useStore((s) => s.pearls);
+  const { spend, current, next, progress } = useTier();
 
   return (
     <View style={[styles.card, compact && { padding: space.lg }]}>
@@ -38,7 +39,7 @@ export function MemberCard({ compact }: { compact?: boolean }) {
             <View style={[styles.barFill, { width: `${Math.max(4, progress * 100)}%` }]} />
           </View>
           <Text style={styles.next}>
-            {next.name} seviyesine ₺{Math.max(0, next.min - yearSpend).toLocaleString('tr-TR')} kaldı
+            {next.name} seviyesine ₺{Math.max(0, next.min - spend).toLocaleString('tr-TR')} kaldı
           </Text>
         </View>
       )}

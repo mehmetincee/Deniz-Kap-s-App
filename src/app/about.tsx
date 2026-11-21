@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -12,11 +13,12 @@ const timeline = [
 ];
 
 export default function About() {
+  const insets = useSafeAreaInsets();
   return (
     <Screen padded={false} bottomInset={40} style={{ paddingTop: 0 }}>
       <View>
         <Image source={require('../../assets/images/chefs.jpg')} style={styles.hero} contentFit="cover" />
-        <IconButton name="chevron-left" label="Geri" onPress={() => router.back()} style={styles.back} />
+        <IconButton name="chevron-left" label="Geri" onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
       </View>
       <View style={{ padding: space.xl }}>
         <T v="label">Hikayemiz</T>
@@ -56,7 +58,7 @@ export default function About() {
 
 const styles = StyleSheet.create({
   hero: { width: '100%', height: 360 },
-  back: { position: 'absolute', left: space.lg, top: 52 },
+  back: { position: 'absolute', left: space.lg },
   item: { flexDirection: 'row', gap: space.lg },
   dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.sky, marginTop: 6 },
   rail: { width: 1.5, flex: 1, backgroundColor: colors.line, marginTop: 4 },

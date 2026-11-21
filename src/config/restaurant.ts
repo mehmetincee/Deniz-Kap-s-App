@@ -18,6 +18,17 @@ export const restaurant = {
 } as const;
 
 /**
+ * Servis saatleri: uygulama bu saatlerin dışında ilgili menüden sipariş almaz.
+ * Öğlen saatleri QR menüden; kahvaltı ve akşam saatleri tahmini — restoran onaylamalı.
+ */
+export const serviceHours = {
+  kitchen: { from: '09:00', to: '23:00' },
+  kahvalti: { from: '09:00', to: '12:00' },
+  oglen: { from: '12:00', to: '18:00' },
+  aksam: { from: '18:00', to: '23:00' },
+} as const;
+
+/**
  * Sadakat programı: "İnci".
  * Her harcamada seviyeye göre İnci kazanılır; 1 İnci = 1 ₺ değerindedir.
  * Seviye, son 12 aydaki toplam harcamaya göre belirlenir.

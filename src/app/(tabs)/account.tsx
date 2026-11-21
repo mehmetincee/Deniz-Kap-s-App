@@ -4,12 +4,12 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Card, Divider, Row, Screen, SectionTitle, T } from '../../components/ui';
 import { restaurant } from '../../config/restaurant';
 import { formatPrice } from '../../data/menu';
-import { tierFor, useStore } from '../../store';
+import { useStore, useTier } from '../../store';
 import { colors, fonts, space } from '../../theme';
 
 export default function Account() {
-  const { user, orders, yearSpend, signOut } = useStore();
-  const { current } = tierFor(yearSpend);
+  const { user, orders, signOut } = useStore();
+  const { current } = useTier();
 
   return (
     <Screen bottomInset={40}>
@@ -45,6 +45,13 @@ export default function Account() {
         <Row icon="cake" title="Pasta siparişi & davetler" subtitle="Doğum günü, düğün, kurumsal etkinlik" onPress={() => router.push('/events')} />
         <Divider />
         <Row icon="info" title="Hikayemiz" subtitle="1971'den bugüne" onPress={() => router.push('/about')} />
+        <Divider />
+        <Row
+          icon="help"
+          title="Yardım & destek"
+          subtitle="WhatsApp'tan genellikle dakikalar içinde yanıt"
+          onPress={() => Linking.openURL(`${restaurant.whatsapp}?text=${encodeURIComponent(`Merhaba, uygulama desteği istiyorum. Üye no: ${user?.memberNo ?? '-'}`)}`)}
+        />
         <Divider />
         <Row icon="pin" title="Yol tarifi" subtitle={restaurant.address} onPress={() => Linking.openURL(restaurant.mapsUrl)} />
         <Divider />

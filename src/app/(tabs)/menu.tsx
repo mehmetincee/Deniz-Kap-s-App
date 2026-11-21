@@ -7,7 +7,7 @@ import { CartBar } from '../../components/CartBar';
 import { Icon } from '../../components/Icon';
 import { ProductRow } from '../../components/ProductRow';
 import { Chip, T } from '../../components/ui';
-import { currentServiceId, services, type Product } from '../../data/menu';
+import { currentServiceId, getProduct, services, type Product } from '../../data/menu';
 import { useStore, type OrderMode } from '../../store';
 import { colors, fonts, radius, space } from '../../theme';
 
@@ -15,6 +15,9 @@ export default function Menu() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ mode?: OrderMode }>();
   const setOrderContext = useStore((s) => s.setOrderContext);
+  const favorites = useStore((s) => s.favorites);
+  const table = useStore((s) => s.table);
+  const orderMode = useStore((s) => s.orderMode);
   const [serviceId, setServiceId] = useState(currentServiceId());
   const [query, setQuery] = useState('');
   const [activeSection, setActiveSection] = useState(0);
@@ -28,7 +31,10 @@ export default function Menu() {
 
   const sections = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('tr-TR');
-    const source = q ? services.flatMap((s) => s.sections) : service.sections;
+    const favSection = favorites.length
+      ? [{ id: 'favoriler', title: 'Favorilerim', titleEn: undefined, items: favorites.map(getProduct).filter(Boolean) as Product[] }]
+      : [];
+    const source = q ? services.flatMap((s) => s.sections) : [...favSection, ...service.sections];
     return source
       .map((sec) => ({
         ...sec,
@@ -37,7 +43,7 @@ export default function Menu() {
           : sec.items,
       }))
       .filter((s) => s.data.length);
-  }, [service, query]);
+  }, [service, query, favorites]);
 
   const jump = (i: number) => {
     setActiveSection(i);
@@ -47,7 +53,10 @@ export default function Menu() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.sand }}>
       <View style={{ paddingTop: insets.top + space.md, paddingHorizontal: space.xl }}>
-        <T v="hero">Menü</T>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <T v="hero">Menü</T>
+          {orderMode === 'masa' && !!table && <Text style={styles.tableBadge}>Masa {table}</Text>}
+        </View>
         <View style={styles.search}>
           <Icon name="search" size={18} color={colors.muted} />
           <TextInput
@@ -129,6 +138,17 @@ export default function Menu() {
 }
 
 const styles = StyleSheet.create({
+  tableBadge: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 12,
+    color: colors.white,
+    backgroundColor: colors.sea,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+    marginBottom: 6,
+  },
   search: {
     marginTop: space.lg,
     height: 48,

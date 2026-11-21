@@ -5,18 +5,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '../components/Icon';
 import { Button, Chip, Divider, IconButton, Stepper, T, tap } from '../components/ui';
-import { formatPrice } from '../data/menu';
+import { serviceHours } from '../config/restaurant';
+import { formatPrice, orderBlockReason } from '../data/menu';
 import { payWithCard } from '../services/payment';
-import { cartTotal, tierFor, useStore, type PaymentMethod } from '../store';
+import { cartTotal, useStore, useTier, type PaymentMethod } from '../store';
 import { colors, fonts, radius, space } from '../theme';
 
 const tipOptions = [0, 0.05, 0.1, 0.15];
 
+/** En erken 20 dk sonrası, 15 dk aralıklarla; mutfak kapanış saatini geçmez. */
 function pickupSlots(now = new Date()) {
   const slots: string[] = [];
+  const [ch, cm] = serviceHours.kitchen.to.split(':').map(Number);
+  const close = new Date(now);
+  close.setHours(ch, cm, 0, 0);
   const t = new Date(now);
   t.setMinutes(Math.ceil((t.getMinutes() + 20) / 15) * 15, 0, 0);
-  for (let i = 0; i < 6; i++) {
+  while (slots.length < 6 && t <= close) {
     slots.push(t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
     t.setMinutes(t.getMinutes() + 15);
   }
@@ -25,8 +30,11 @@ function pickupSlots(now = new Date()) {
 
 export default function Cart() {
   const insets = useSafeAreaInsets();
-  const { cart, setQty, wallet, pearls, yearSpend, orderMode, table, setOrderContext, placeOrder } = useStore();
-  const [slot, setSlot] = useState(pickupSlots()[0]);
+  const { cart, setQty, wallet, pearls, orderMode, table, setOrderContext, placeOrder } = useStore();
+  const slots = pickupSlots();
+  const [slotPick, setSlot] = useState<string | undefined>(slots[0]);
+  // Ekran açıkken saat ilerlerse seçilen saat listeden düşebilir
+  const slot = slotPick && slots.includes(slotPick) ? slotPick : slots[0];
   const [tip, setTip] = useState(0);
   const [usePearls, setUsePearls] = useState(false);
   const [method, setMethod] = useState<PaymentMethod>('kart');
@@ -36,10 +44,15 @@ export default function Cart() {
   const tipAmount = Math.round(subtotal * tip);
   const pearlsUsed = usePearls ? Math.min(pearls, subtotal) : 0;
   const total = subtotal + tipAmount - pearlsUsed;
-  const rate = tierFor(yearSpend).current.rate;
+  const rate = useTier().current.rate;
   const willEarn = Math.floor((total - tipAmount) * rate);
 
-  const canPay = cart.length > 0 && (orderMode === 'gelal' || table.trim().length > 0) && (method === 'kart' || wallet >= total);
+  const blocked = cart.map((l) => ({ line: l, reason: orderBlockReason(l.productId) })).filter((b) => b.reason);
+  const canPay =
+    cart.length > 0 &&
+    blocked.length === 0 &&
+    (orderMode === 'gelal' ? !!slot : table.trim().length > 0) &&
+    (method === 'kart' || wallet >= total);
 
   async function pay() {
     setBusy(true);
@@ -102,9 +115,10 @@ export default function Cart() {
             <View style={{ marginTop: space.lg }}>
               <T v="label">Teslim saati</T>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm, marginTop: space.sm }}>
-                {pickupSlots().map((s) => (
+                {slots.map((s) => (
                   <Chip key={s} label={s} active={s === slot} onPress={() => setSlot(s)} />
                 ))}
+                {slots.length === 0 && <T>Bugün için uygun teslim saati kalmadı.</T>}
               </ScrollView>
             </View>
           )}
@@ -116,6 +130,9 @@ export default function Cart() {
                   <Text style={styles.lineName}>{l.name}</Text>
                   {(l.optionName || l.note) && <T v="small">{[l.optionName, l.note].filter(Boolean).join(' · ')}</T>}
                   <Text style={styles.linePrice}>{formatPrice(l.unitPrice * l.qty)}</Text>
+                  {!!orderBlockReason(l.productId) && (
+                    <Text style={styles.lineWarn}>{orderBlockReason(l.productId)}</Text>
+                  )}
                 </View>
                 <Stepper small value={l.qty} onChange={(n) => setQty(l.key, n)} />
               </View>
@@ -173,10 +190,17 @@ export default function Cart() {
       {cart.length > 0 && (
         <View style={[styles.footer, { paddingBottom: insets.bottom + space.lg }]}>
           <Button title={`Öde · ${formatPrice(total)}`} onPress={pay} loading={busy} disabled={!canPay} />
-          {orderMode === 'masa' && !table.trim() && (
-            <T v="small" style={{ textAlign: 'center', marginTop: space.sm }}>
-              Devam etmek için masa numarasını girin.
+          {blocked.length > 0 ? (
+            <T v="small" style={{ textAlign: 'center', marginTop: space.sm, color: colors.coral }}>
+              Şu an hazırlanamayan ürünleri sepetten çıkarın.
             </T>
+          ) : (
+            orderMode === 'masa' &&
+            !table.trim() && (
+              <T v="small" style={{ textAlign: 'center', marginTop: space.sm }}>
+                Devam etmek için masa numarasını girin.
+              </T>
+            )
           )}
         </View>
       )}
@@ -241,6 +265,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   lineName: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: colors.ink },
+  lineWarn: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.coral, marginTop: 4 },
   linePrice: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.inkSoft, marginTop: 4 },
   pearlRow: {
     flexDirection: 'row',

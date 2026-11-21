@@ -47,6 +47,7 @@ export default function RootLayout() {
         <Stack.Screen name="order/[id]" />
         <Stack.Screen name="events" />
         <Stack.Screen name="about" />
+        <Stack.Screen name="masa/[table]" options={{ animation: 'none' }} />
       </Stack>
     </SafeAreaProvider>
   );

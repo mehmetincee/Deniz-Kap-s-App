@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, TextInput, View } from 'react-native';
@@ -14,6 +15,7 @@ const types = ['Pasta siparişi', 'Doğum günü', 'Düğün / nişan', 'Kurumsa
  * backend geldiğinde POST /event-requests'e taşınmalı.
  */
 export default function Events() {
+  const insets = useSafeAreaInsets();
   const [type, setType] = useState(types[0]);
   const [guests, setGuests] = useState(20);
   const [date, setDate] = useState('');
@@ -28,7 +30,7 @@ export default function Events() {
     <Screen padded={false} bottomInset={40} style={{ paddingTop: 0 }}>
       <View>
         <Image source={require('../../assets/images/terrace.jpg')} style={styles.hero} contentFit="cover" />
-        <IconButton name="chevron-left" label="Geri" onPress={() => router.back()} style={styles.back} />
+        <IconButton name="chevron-left" label="Geri" onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
       </View>
       <View style={{ padding: space.xl }}>
         <T v="label">Etkinlikler & Özel Davetler</T>
@@ -42,7 +44,7 @@ export default function Events() {
 
         <Card style={{ marginTop: space.xl, backgroundColor: colors.foam }}>
           <T v="h3">Pasta siparişi</T>
-          <T style={{ marginTop: 4 }}>Etkinlik tarihinden en az 1 gün önce, saat 11:00'e kadar sipariş vermeniz yeterli.</T>
+          <T style={{ marginTop: 4 }}>Etkinlik tarihinden en az 1 gün önce, saat 11:00’e kadar sipariş vermeniz yeterli.</T>
         </Card>
 
         <T v="label" style={{ marginTop: space.xl }}>
@@ -82,7 +84,7 @@ export default function Events() {
 
 const styles = StyleSheet.create({
   hero: { width: '100%', height: 260 },
-  back: { position: 'absolute', left: space.lg, top: 52 },
+  back: { position: 'absolute', left: space.lg },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm },
   input: {
     marginTop: space.sm,

@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useNow } from '../../hooks/useNow';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '../../components/Icon';
 import { Button, Card, Divider, IconButton, Screen, T } from '../../components/ui';
 import { formatPrice } from '../../data/menu';
-import { useStore, type OrderStatus } from '../../store';
+import { restaurant } from '../../config/restaurant';
+import { liveStatus, useStore, type OrderStatus } from '../../store';
 import { colors, fonts, space } from '../../theme';
 
 const steps: { id: OrderStatus; title: string; sub: string }[] = [
@@ -18,14 +19,8 @@ const steps: { id: OrderStatus; title: string; sub: string }[] = [
 export default function OrderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const order = useStore((s) => s.orders.find((o) => o.id === id));
-  const advance = useStore((s) => s.advanceOrder);
-
-  // DEMO: Gerçekte durum backend/POS'tan (push bildirimi veya canlı bağlantı) gelir.
-  useEffect(() => {
-    if (!order || order.status === 'teslim') return;
-    const t = setTimeout(() => advance(order.id), 8000);
-    return () => clearTimeout(t);
-  }, [order, advance]);
+  const reorder = useStore((s) => s.reorder);
+  const now = useNow(3000);
 
   if (!order) {
     return (
@@ -36,7 +31,12 @@ export default function OrderScreen() {
     );
   }
 
-  const current = steps.findIndex((s) => s.id === order.status);
+  const status = liveStatus(order, now);
+  const current = steps.findIndex((s) => s.id === status);
+  const reportIssue = () => {
+    const text = `Merhaba, #${order.id.slice(-5)} numaralı siparişimle ilgili bir sorun var: `;
+    Linking.openURL(`${restaurant.whatsapp}?text=${encodeURIComponent(text)}`);
+  };
 
   return (
     <Screen>
@@ -88,7 +88,16 @@ export default function OrderScreen() {
         </T>
       </Card>
 
-      <Button title="Menüye dön" variant="secondary" onPress={() => router.replace('/menu')} style={{ marginTop: space.xl }} />
+      <Button
+        title="Tekrar sipariş ver"
+        icon="repeat"
+        onPress={() => {
+          reorder(order);
+          router.push('/cart');
+        }}
+        style={{ marginTop: space.xl }}
+      />
+      <Button title="Siparişimde sorun var" icon="help" variant="ghost" onPress={reportIssue} style={{ marginTop: space.sm }} />
     </Screen>
   );
 }

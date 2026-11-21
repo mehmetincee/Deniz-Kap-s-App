@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 
 import { Button, Card, Chip, SectionTitle, Screen, Stepper, T, tap } from '../../components/ui';
 import { restaurant } from '../../config/restaurant';
+import { useNow } from '../../hooks/useNow';
 import { useStore } from '../../store';
 import { colors, fonts, radius, space } from '../../theme';
 
@@ -32,12 +33,23 @@ export default function Reservation() {
   const [note, setNote] = useState('');
   const [sent, setSent] = useState(false);
 
-  const upcoming = reservations.filter((r) => r.status !== 'iptal');
+  const now = useNow();
+  const isPast = (d: Date, t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const at = new Date(d);
+    at.setHours(h, m, 0, 0);
+    // En az 1 saat sonrası için rezervasyon alınır
+    return at.getTime() < now + 60 * 60 * 1000;
+  };
+  const available = times.filter((t) => !isPast(day, t));
+  const selectedTime = available.includes(time) ? time : available[0];
+  const upcoming = reservations.filter((r) => r.status !== 'iptal' && !isPast(new Date(r.date), r.time));
 
   const submit = () => {
+    if (!selectedTime) return;
     addReservation({
       date: day.toISOString(),
-      time,
+      time: selectedTime,
       guests,
       area,
       occasion,
@@ -83,9 +95,10 @@ export default function Reservation() {
       <View style={{ marginTop: space.lg }}>
         <T v="label">Saat</T>
         <View style={styles.wrap}>
-          {times.map((t) => (
-            <Chip key={t} label={t} active={t === time} onPress={() => setTime(t)} />
+          {available.map((t) => (
+            <Chip key={t} label={t} active={t === selectedTime} onPress={() => setTime(t)} />
           ))}
+          {available.length === 0 && <T>Bugün için boş saat kalmadı, lütfen başka bir gün seçin.</T>}
         </View>
       </View>
 
@@ -124,7 +137,12 @@ export default function Reservation() {
       </View>
 
       <Button
-        title={`${day.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} · ${time} · ${guests} kişi`}
+        title={
+          selectedTime
+            ? `${day.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} · ${selectedTime} · ${guests} kişi`
+            : 'Saat seçin'
+        }
+        disabled={!selectedTime}
         onPress={submit}
         style={{ marginTop: space.xl }}
       />

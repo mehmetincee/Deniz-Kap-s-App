@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '../../components/Icon';
 import { Button, IconButton, Stepper, T, tap } from '../../components/ui';
-import { allergenNames, formatPrice, getProduct } from '../../data/menu';
+import { allergenNames, formatPrice, getProduct, orderBlockReason } from '../../data/menu';
 import { useStore } from '../../store';
 import { colors, fonts, radius, space } from '../../theme';
 
@@ -15,6 +15,8 @@ export default function ProductScreen() {
   const insets = useSafeAreaInsets();
   const product = getProduct(id);
   const addToCart = useStore((s) => s.addToCart);
+  const isFavorite = useStore((s) => s.favorites.includes(id));
+  const toggleFavorite = useStore((s) => s.toggleFavorite);
   const [optionId, setOptionId] = useState(product?.options?.[0]?.id);
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState('');
@@ -29,6 +31,7 @@ export default function ProductScreen() {
   }
 
   const option = product.options?.find((o) => o.id === optionId);
+  const blocked = orderBlockReason(product.id);
   const unit = option?.price ?? product.price;
 
   return (
@@ -42,6 +45,12 @@ export default function ProductScreen() {
           </View>
         )}
         <IconButton name="close" label="Kapat" onPress={() => router.back()} style={[styles.close, { top: insets.top + space.md }]} />
+        <IconButton
+          name={isFavorite ? 'heart-filled' : 'heart'}
+          label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          onPress={() => toggleFavorite(product.id)}
+          style={[styles.close, { top: insets.top + space.md, right: space.lg + 52 }]}
+        />
 
         <View style={{ padding: space.xl }}>
           <T v="h1">{product.name}</T>
@@ -93,6 +102,11 @@ export default function ProductScreen() {
       <View style={[styles.footer, { paddingBottom: insets.bottom + space.lg }]}>
         {product.askWaiter ? (
           <T style={{ flex: 1, textAlign: 'center' }}>Günün balığını garsonunuzla birlikte seçebilirsiniz.</T>
+        ) : blocked ? (
+          <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+            <Icon name="clock" size={18} color={colors.muted} />
+            <T style={{ textAlign: 'center' }}>{blocked}</T>
+          </View>
         ) : (
           <>
             <Stepper value={qty} onChange={setQty} min={1} />
