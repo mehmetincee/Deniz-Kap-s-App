@@ -7,6 +7,8 @@ Expo (React Native) + TypeScript + Expo Router ile yazıldı. Tek kod tabanında
 
 ## Ekranlar
 
+![Ekranlar](docs/ekranlar.png)
+
 | Sekme / Ekran | İçerik |
 |---|---|
 | **Karşılama** | Marka girişi, ad ve telefon ile kayıt, SMS kodu (demo kod: `1971`) |
