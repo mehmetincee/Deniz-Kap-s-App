@@ -1,0 +1,2320 @@
+[
+ {
+  "id": "kahvalti",
+  "title": "Kahvaltı",
+  "hours": "09:00 – 12:00",
+  "sections": [
+   {
+    "id": "kahvalti-gune-baslarken",
+    "title": "Güne Başlarken",
+    "titleEn": "Starting The Day",
+    "items": [
+     {
+      "id": "kahvalti-ev-yapimi-patates",
+      "name": "Ev Yapımı Patates",
+      "nameEn": "Homemade Fries",
+      "allergens": [],
+      "price": 320,
+      "description": "Kabuğuyla kızartılmış patates, yanında ev yapımı sos eşliğinde",
+      "descriptionEn": "Hand-cut fries with skin, served with our homemade dip"
+     },
+     {
+      "id": "kahvalti-marmaris-yogurtlamasi",
+      "name": "Marmaris Yoğurtlaması",
+      "nameEn": "Fried Vegetables with Yogurt",
+      "allergens": [
+       "MK"
+      ],
+      "price": 420,
+      "description": "Kızarmış patates, patlıcan, biber ve sarımsaklı yoğurt"
+     },
+     {
+      "id": "kahvalti-sucuk-kizartma-140gr",
+      "name": "Sucuk Kızartma 140gr",
+      "nameEn": "Pan-fried Turkish beef sausage",
+      "allergens": [
+       "MK",
+       "SP"
+      ],
+      "price": 475
+     },
+     {
+      "id": "kahvalti-muhlama",
+      "name": "Muhlama",
+      "nameEn": "Traditional cornmeal fondue with butter and melting Kolot cheese",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 490
+     },
+     {
+      "id": "kahvalti-ev-yapimi-granola",
+      "name": "Ev Yapımı Granola",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 450,
+      "description": "Sütle çırpılmış süzme yoğurt, granola, mevsim meyvesi, Marmaris çam balı",
+      "descriptionEn": "Strained yogurt whipped with milk, granola, seasonal fruits, Marmaris pine honey"
+     }
+    ]
+   },
+   {
+    "id": "kahvalti-ekmek-hamur-isleri",
+    "title": "Ekmek & Hamur Işleri",
+    "titleEn": "Bread & Pastry",
+    "items": [
+     {
+      "id": "kahvalti-marmaris-tepsi-boregi",
+      "name": "Marmaris Tepsi Böreği",
+      "nameEn": "Traditional Tray Pastry",
+      "allergens": [
+       "EG",
+       "MK",
+       "WH"
+      ],
+      "price": 400
+     },
+     {
+      "id": "kahvalti-avci-boregi",
+      "name": "Avcı Böreği",
+      "nameEn": "Hunter Rolls",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 440,
+      "description": "Sarımsaklı yoğurt, acı kıtırı",
+      "descriptionEn": "Garlic yogurt, umami chili"
+     },
+     {
+      "id": "kahvalti-citir-tiftik-boregi",
+      "name": "Çıtır Tiftik Böreği",
+      "nameEn": "Crispy Pulled Beef",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 450,
+      "description": "Ev yapımı acı sos",
+      "descriptionEn": "Homemade chili sauce"
+     },
+     {
+      "id": "kahvalti-pancake",
+      "name": "Pancake",
+      "nameEn": null,
+      "allergens": [
+       "EG",
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 520,
+      "description": "Mevsim meyvesi compote, file badem, kaymak",
+      "descriptionEn": "Seasonal fruit compote, sliced almonds, milk cream"
+     },
+     {
+      "id": "kahvalti-dort-peynirli-tost",
+      "name": "Dört Peynirli Tost",
+      "nameEn": "Four Cheese Toast",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 440,
+      "description": "Ekşi maya ekmek, beyaz peynir, eski kaşar, kaşar, cheddar, pesto sos",
+      "descriptionEn": "Sourdough bread, white cheese, aged cheese, melt cheese, cheddar, pesto sauce"
+     },
+     {
+      "id": "kahvalti-avakado-ezine-tartine",
+      "name": "Avakado Ezine Tartine",
+      "nameEn": "Avacado Ezine Tartine",
+      "allergens": [
+       "EG",
+       "MK",
+       "SP",
+       "WH"
+      ],
+      "price": 480,
+      "description": "Ekşi maya ekmek, avokado püresi, Ezine peyniri, göz yumurta, acı kıtırı",
+      "descriptionEn": "Sourdough bread, avocado mash, Ezine cheese, sunny-side up egg, spicy chili"
+     },
+     {
+      "id": "kahvalti-bazlama-tost",
+      "name": "Bazlama Tost",
+      "nameEn": "Flatbread Toast",
+      "allergens": [
+       "MK",
+       "SP",
+       "TN",
+       "WH"
+      ],
+      "price": 490,
+      "description": "Bazlama ekmeği, sucuk, kaşar, kuru domates tapenade",
+      "descriptionEn": "Bazlama bread, soudjouk, melt cheese, sun-dried tomatoes tapenade"
+     },
+     {
+      "id": "kahvalti-kavurmali-tost-100gr",
+      "name": "Kavurmalı Tost 100gr",
+      "nameEn": "Roasted Meat Toast",
+      "allergens": [
+       "MK",
+       "SP",
+       "TN",
+       "WH"
+      ],
+      "price": 520,
+      "description": "Kavurma, eski kaşar, çemen",
+      "descriptionEn": "Roasted meat, aged kashar cheese, homemade spicy paste with walnut"
+     }
+    ]
+   },
+   {
+    "id": "kahvalti-yumurtali-seyler",
+    "title": "Yumurtalı Şeyler",
+    "titleEn": "Eggs",
+    "items": [
+     {
+      "id": "kahvalti-sahanda-yumurta",
+      "name": "Sahanda Yumurta",
+      "nameEn": "Fried Eggs",
+      "allergens": [
+       "EG",
+       "MK"
+      ],
+      "options": [
+       {
+        "id": "sade",
+        "name": "Sade",
+        "price": 295
+       },
+       {
+        "id": "lorlu",
+        "name": "Lorlu",
+        "price": 320
+       },
+       {
+        "id": "sucuklu",
+        "name": "Sucuklu",
+        "price": 385
+       },
+       {
+        "id": "pastirmali",
+        "name": "Pastırmalı",
+        "price": 420
+       },
+       {
+        "id": "kavurmali",
+        "name": "Kavurmalı",
+        "price": 440
+       }
+      ],
+      "price": 295
+     },
+     {
+      "id": "kahvalti-omlet",
+      "name": "Omlet",
+      "nameEn": "Omelette",
+      "allergens": [
+       "EG",
+       "MK"
+      ],
+      "options": [
+       {
+        "id": "sade",
+        "name": "Sade",
+        "price": 395
+       },
+       {
+        "id": "otlu-peynirli",
+        "name": "Otlu & Peynirli",
+        "price": 440
+       },
+       {
+        "id": "mantarli",
+        "name": "Mantarlı",
+        "price": 460
+       },
+       {
+        "id": "patates-soganli",
+        "name": "Patates & Soğanlı",
+        "price": 460
+       },
+       {
+        "id": "dana-bacon-eski-kasarli",
+        "name": "Dana Bacon & Eski Kaşarlı",
+        "price": 580
+       }
+      ],
+      "price": 395
+     },
+     {
+      "id": "kahvalti-menemen",
+      "name": "Menemen",
+      "nameEn": "Turkish scrambled eggs with tomatoes and peppers",
+      "allergens": [
+       "EG"
+      ],
+      "options": [
+       {
+        "id": "sade",
+        "name": "Sade",
+        "price": 340
+       },
+       {
+        "id": "kasarli",
+        "name": "Kaşarlı",
+        "price": 380
+       },
+       {
+        "id": "beyaz-peynirli",
+        "name": "Beyaz Peynirli",
+        "price": 380
+       },
+       {
+        "id": "sucuklu",
+        "name": "Sucuklu",
+        "price": 420
+       }
+      ],
+      "price": 340
+     }
+    ]
+   },
+   {
+    "id": "kahvalti-kahvalti-secenekleri",
+    "title": "Kahvaltı Seçenekleri",
+    "titleEn": "Breakfast Selections",
+    "items": [
+     {
+      "id": "kahvalti-serpme-kisi-basi",
+      "name": "Serpme (kişi başı)",
+      "nameEn": "Traditional (per person)",
+      "allergens": [
+       "EG",
+       "MK",
+       "SE",
+       "SP",
+       "TN",
+       "WH"
+      ],
+      "price": 825,
+      "description": "Ezine peyniri, beyaz peynir, sepet peyniri, eski kaşar, tulum peyniri, pastırma, söğüş tabağı (domates, salatalık, biber, taze yeşillik), kişnişli dilme yeşil zeytin, salçalı ve zahterli siyah zeytin, domatesli köy biberi, kuru domates tapenade, çemen, Ege ezmesi, humus, yanık tereyağlı sahanda yumurta, bazlama, zeytinyağında pişi, simit, tepsi böreği, Marmaris çam balı, köy tereyağı, kaymaklı domates reçeli, lorlu mevsim reçeli, mevsim meyvesi reçeli, çıtır kabak ve tahin, sahine, süt karameli, çikolatalı fındık ezmesi, pankek ve demleme çay",
+      "descriptionEn": "Ezine cheese, white cheese, \"Sepet\" basket cheese, aged kashar, tulum cheese, pastrami, fresh vegetable platter (tomatoes, cucumbers, peppers, garden greens), green olives with coriander, black olives with tomato paste and zahter, village peppers with tomato sauce, sun-dried tomato tapenade, spiced walnut paste (çemen), Aegean spread, hummus, fried eggs with burnt butter, flatbread, olive oil fried dough \"pishi\", simit (sesame bagel), tray borek, Marmaris pine honey, village butter, tomato jam with clotted cream, curd cheese with seasonal jam, seasonal fruit jam, crispy pumpkin with tahini, \"Sahine\" (traditional honey, sesame & butter spread), milk caramel, chocolate hazelnut spread, pancake and brewed tea"
+     },
+     {
+      "id": "kahvalti-tabak",
+      "name": "Tabak",
+      "nameEn": "Plate",
+      "allergens": [
+       "EG",
+       "MK",
+       "SE",
+       "SP",
+       "TN",
+       "WH"
+      ],
+      "price": 875,
+      "description": "Peynir çeşitleri, mevsim reçeli, zeytin tabağı, köy tereyağı, kuru domates tapenade, Marmaris çam balı, çıtır kabak ve tahin, humus, Ege ezme, zeytinyağında pişi, çemen, domates-salatalık, sahanda yumurta, bazlama, iki bardak demleme çay",
+      "descriptionEn": "Types of cheese, seasonal jam, olive platter, village butter, sun-dried tomato tapenade, Marmaris pine honey, crispy zucchini and tahini, hummus, Aegean mash, fried dough in olive oil, pastirma spread, tomato-cucumber, eggs in a pan, flatbread, two cups of brewed tea."
+     },
+     {
+      "id": "kahvalti-kahvalti-bowl",
+      "name": "Kahvaltı Bowl",
+      "nameEn": "Breakfast Bowl",
+      "allergens": [
+       "EG",
+       "MK",
+       "SE",
+       "SP",
+       "TN",
+       "WH"
+      ],
+      "price": 650,
+      "description": "Roka, domates, salatalık, zeytin, ceviz, ezine peynir, dilme yeşil zeytin, dana bacon, avakado, haşlanmış yumurta",
+      "descriptionEn": "Arugula, tomatoes, cucumber, olives, walnuts, Ezine cheese, sliced green olives, beef bacon, avocado, boiled egg"
+     },
+     {
+      "id": "kahvalti-queen",
+      "name": "Queen",
+      "nameEn": null,
+      "allergens": [
+       "EG",
+       "SY",
+       "WH"
+      ],
+      "price": 920,
+      "description": "Göz yumurta, bacon, sosis, tava domates, sote mantar, tatlı fasulye , ekşi maya ekmek",
+      "descriptionEn": "Sunny-side up eggs, pork bacon, sausage, pan roasted tomatoes, sautéed mushrooms, sweet beans, sourdough bread"
+     }
+    ]
+   },
+   {
+    "id": "kahvalti-kahvaltini-zenginlestir",
+    "title": "Kahvaltını Zenginleştir",
+    "titleEn": "Enhance Your Breakfast",
+    "items": [
+     {
+      "id": "kahvalti-peynir-tabagi-2-cheese-plate",
+      "name": "Peynir Tabağı 2 Cheese Plate",
+      "allergens": [
+       "MK"
+      ],
+      "price": 400
+     },
+     {
+      "id": "kahvalti-peynir-tabagi-4-cheese-plate",
+      "name": "Peynir Tabağı 4 Cheese Plate",
+      "allergens": [
+       "MK"
+      ],
+      "price": 750
+     },
+     {
+      "id": "kahvalti-salatalik-domates-2-tomato-cucumber",
+      "name": "Salatalık & Domates 2 Tomato & Cucumber",
+      "allergens": [],
+      "price": 150
+     },
+     {
+      "id": "kahvalti-salatalik-domates-4-tomato-cucumber",
+      "name": "Salatalık & Domates 4 Tomato & Cucumber",
+      "allergens": [],
+      "price": 280
+     },
+     {
+      "id": "kahvalti-mevsim-recel-seasonal-jam",
+      "name": "Mevsim Reçel Seasonal Jam",
+      "allergens": [],
+      "price": 80
+     },
+     {
+      "id": "kahvalti-citir-kabak-ve-tahin-crispy-pumpkin-tahini",
+      "name": "Çıtır Kabak ve Tahin Crispy Pumpkin & Tahini",
+      "allergens": [],
+      "price": 200
+     },
+     {
+      "id": "kahvalti-cam-bali-pine-honey",
+      "name": "Çam Balı Pine Honey",
+      "allergens": [],
+      "price": 100
+     },
+     {
+      "id": "kahvalti-bal-kaymak-honey-cream",
+      "name": "Bal & Kaymak Honey & Cream",
+      "allergens": [
+       "MK"
+      ],
+      "price": 225
+     },
+     {
+      "id": "kahvalti-tereyagi-butter",
+      "name": "Tereyağı Butter",
+      "allergens": [
+       "MK"
+      ],
+      "price": 150
+     },
+     {
+      "id": "kahvalti-kaymak-cream",
+      "name": "Kaymak Cream",
+      "allergens": [
+       "MK"
+      ],
+      "price": 135
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "oglen",
+  "title": "Öğlen",
+  "hours": "12:00 – 18:00",
+  "sections": [
+   {
+    "id": "oglen-ortaya",
+    "title": "Ortaya",
+    "titleEn": "For Sharing",
+    "items": [
+     {
+      "id": "oglen-besli-meze",
+      "name": "Beşli Meze",
+      "nameEn": "Five Mezze",
+      "allergens": [
+       "LP",
+       "MD",
+       "MK",
+       "SE",
+       "SP",
+       "WH"
+      ],
+      "price": 1080,
+      "description": "Şefin günlük seçtiği beş özel meze, yanında taze bazlama ekmeği ile servis edilir.",
+      "descriptionEn": "Five specially selected mezzes by our chef, served with fresh bazlama bread."
+     },
+     {
+      "id": "oglen-yerel-peynir-seckisi",
+      "name": "Yerel Peynir Seçkisi",
+      "nameEn": "Artisanal Local Cheeses",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 1250,
+      "description": "Şefin seçtiği yöresel peynirler, mevsim eşlikçileri ve ev yapımı dokunuşlarla servis edilir.",
+      "descriptionEn": "A curated selection of regional cheeses served with seasonal accompaniments and house-made touches."
+     },
+     {
+      "id": "oglen-mevsim-meyveleri",
+      "name": "Mevsim Meyveleri",
+      "nameEn": "Seasonal Fruit Selection",
+      "allergens": [],
+      "price": 600,
+      "description": "Günün en taze meyve seçkisi",
+      "descriptionEn": "A selection of the freshest seasonal fruits"
+     }
+    ]
+   },
+   {
+    "id": "oglen-altin-secki",
+    "title": "Altın Seçki",
+    "titleEn": "Golden Selection",
+    "items": [
+     {
+      "id": "oglen-bira-yancisi",
+      "name": "Bira Yancısı",
+      "nameEn": "Combo Platter",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "SP",
+       "SY",
+       "WH"
+      ],
+      "price": 890,
+      "description": "Çıtır tavuk şeritleri, keçi peyniri pane, çıtır zeytin, ev yapımı soğan halkası, sebzeli börek, çıtır kokoreç topları, dana sosis, kaşık patates, günün turşusu, tarhana dip, acı dip",
+      "descriptionEn": "Crispy chicken strips, crispy goat cheese, breaded olives, homemade onion rings, vegetable rolls, crispy kokoreç balls, beef sausage, fry’n’dip potatoes, daily pickle , tarhana dip, hot pepper dip"
+     },
+     {
+      "id": "oglen-citir-tavuk",
+      "name": "Çıtır Tavuk",
+      "nameEn": "Crispy Chicken",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "SP",
+       "SY",
+       "WH"
+      ],
+      "price": 595,
+      "description": "Kaşık patates ve ev yapımı XO sos",
+      "descriptionEn": "Fry’n’dip potatoes, homemade XO dip"
+     },
+     {
+      "id": "oglen-avci-boregi",
+      "name": "Avcı Böreği",
+      "nameEn": "Hunter Rolls",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 440,
+      "description": "Sarımsaklı yoğurt, yeşil yağ",
+      "descriptionEn": "Garlic yogurt, parsley oil"
+     },
+     {
+      "id": "oglen-citir-tiftik-boregi",
+      "name": "Çıtır Tiftik Böreği",
+      "nameEn": "Crispy Pulled Beef",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 450,
+      "description": "Sarımsaklı yoğurt, acı kıtırı",
+      "descriptionEn": "Garlic yogurt, crispy chili sauce"
+     }
+    ]
+   },
+   {
+    "id": "oglen-salata",
+    "title": "Salata",
+    "titleEn": "Salads",
+    "items": [
+     {
+      "id": "oglen-yesil",
+      "name": "Yeşil",
+      "nameEn": "Green",
+      "allergens": [
+       "MD"
+      ],
+      "price": 525,
+      "description": "Taze roka, göbek marul, maydanoz, fesleğen, nane ve dereotu, ince dilimlenmiş yeşil elma ile",
+      "descriptionEn": "Fresh arugula, lettuce, parsley, basil, mint, and dill, finished with thinly sliced green apple"
+     },
+     {
+      "id": "oglen-kizarmis-keci-peynirli-salata",
+      "name": "Kızarmış Keçi Peynirli Salata",
+      "nameEn": "Crispy Goat Cheese Salad",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 640,
+      "description": "Roka, Akdeniz yeşillikleri, çilek dilimleri, ceviz içi ile hazırlanan bu tatlı-tuzlu salata, kızarmış keçi peyniri ve domates reçeli vinegret sos ile servis edilir.",
+      "descriptionEn": "A sweet and savory salad of arugula, Aegean greens, strawberries, walnuts, and topped with crispy goat cheese  and finished with a tomato jam vinaigrette."
+     },
+     {
+      "id": "oglen-egeli-sezar",
+      "name": "Egeli Sezar",
+      "nameEn": "Aegean Caesar",
+      "allergens": [
+       "MD",
+       "MK",
+       "SE",
+       "WH"
+      ],
+      "price": 650,
+      "description": "Klasik Sezar salatasının Ege yorumuyla yeniden hayat bulmuş hali. Narenciye ve tahin bazlı özel sos ile harmanlanmış taptaze yeşillikler, çıtır simit krutonları ve olgun parmesan peyniri ile servis edilir. İsteğe göre ızgara ya da çıtır tavuk ile sunulur.",
+      "descriptionEn": "Crisp romaine & arugula tossed in a citrus-tahini Caesar dressing, served with sesame bagel croutons, aged parmesan, and microgreens. Available with your choice of grilled or crispy chicken."
+     },
+     {
+      "id": "oglen-ton-balikli-akdeniz",
+      "name": "Ton Balıklı Akdeniz",
+      "nameEn": "Mediterranean Tuna",
+      "allergens": [
+       "MD",
+       "SY",
+       "TN"
+      ],
+      "price": 660,
+      "description": "Akdeniz yeşillikleri, domates, capari, bebek mısır ve kavrulmuş ay çekirdeği ile hazırlanan hafif ve doyurucu salata, zeytinyağı ve limon ile harmanlanmış ton balığıyla servis edilir.",
+      "descriptionEn": "A light yet satisfying salad of crisp Aegean greens, tomatoes, capers, baby corn, and roasted sunflower seeds, served with olive oil and lemon-dressed tuna."
+     }
+    ]
+   },
+   {
+    "id": "oglen-iki-dilim-arasinda",
+    "title": "Iki Dilim Arasında",
+    "titleEn": "Between Two Slices",
+    "items": [
+     {
+      "id": "oglen-klasik-2-0",
+      "name": "Klasik 2.0",
+      "nameEn": "Classic 2.0",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 740,
+      "description": "150 gr burger köftesi, ev yapımı özel sos, salatalık turşusu, karamelize soğan ve burger peyniri, kaşık patates ile servis edilir.",
+      "descriptionEn": "150 gr. burger patty, homemade special sauce, pickles, caramelized onions, burger cheese, served with fry’n’dip potatoes."
+     },
+     {
+      "id": "oglen-recelli-burger",
+      "name": "Reçelli Burger",
+      "nameEn": "Jamburger",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 820,
+      "description": "150 gr burger köftesi, tatlı ve tuzlu dengenin mükemmel birleşimi olan domates reçeli, çıtır soğan,  trüf mayonez, dana bacon ve emmantel peyniri, kaşık patates eşliğinde servis edilir.",
+      "descriptionEn": "A 150g burger patty is served with tomato jam, which is a perfect blend of sweet and salty, crispy onions, truffle mayonnaise, beef bacon, and Emmental cheese, accompanied by spoon potatoes."
+     },
+     {
+      "id": "oglen-dana-tiftik-burger",
+      "name": "Dana Tiftik Burger",
+      "nameEn": "Pulled Beef Burger",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 890,
+      "description": "150 gr yavaş pişirilmiş dana tiftik etinden hazırlanan burger, barbekü sos ve cheddar peyniri ile zenginleştirilir. Kaşık patates eşliğinde servis edilir.",
+      "descriptionEn": "150 gr slow-cooked pulled beef burger, enriched with house BBQ sauce, and cheddar cheese. Served with fry’n’dip potatoes."
+     },
+     {
+      "id": "oglen-citir-katsu-burger",
+      "name": "Çıtır Katsu Burger",
+      "nameEn": "Crispy Katsu Burger",
+      "allergens": [
+       "EG",
+       "MD",
+       "MK",
+       "SP",
+       "SY",
+       "WH"
+      ],
+      "price": 640,
+      "description": "Panko ile kaplanmış çıtır tavuk filetosu, ince kıyım marul ve turşu ile tamamlanır. ev yapımı xo sos zenginleştirilmiş bu özel lezzet, kaşık patates eşliğinde servis edilir.",
+      "descriptionEn": "Crispy chicken fillet coated with tarhana panko, shredded lettuce, pickles, and homemade xo mayo. Served with fry’n’dip potatoes."
+     },
+     {
+      "id": "oglen-kalamar-tava-sandvic",
+      "name": "Kalamar Tava Sandviç",
+      "nameEn": "Fried Calamari Sandwich",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 890,
+      "description": "Çıtır kalamar tava, pürüzsüz tartar sos, roka, soğan turşusu",
+      "descriptionEn": "Crispy fried calamari, smooth tartar sauce, arugula, pickled onions"
+     }
+    ]
+   },
+   {
+    "id": "oglen-tas-firindan",
+    "title": "Taş Fırından",
+    "titleEn": "From Stove Oven",
+    "items": [
+     {
+      "id": "oglen-lahmacun",
+      "name": "Lahmacun",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 700,
+      "description": "Özel baharatlı kıyma harcı, maydanoz, soğan turşusu, limon",
+      "descriptionEn": "Spiced minced meat blend, parsley, onion pickle, lemon"
+     },
+     {
+      "id": "oglen-kiyma-kavurmali-izmir-tulumlu-pide",
+      "name": "Kıyma Kavurmalı & İzmir Tulumlu Pide",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 750,
+      "description": "Karamelize soğanlı kıyma kavurması, İzmir tulum peyniri",
+      "descriptionEn": "Sautéed minced meat with onions, Izmir tulum cheese"
+     },
+     {
+      "id": "oglen-margherita",
+      "name": "Margherita",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 740,
+      "description": "Domates sos, mozzarella, taze fesleğen",
+      "descriptionEn": "Tomato sauce, mozzarella, fresh basil"
+     },
+     {
+      "id": "oglen-dort-peynirli",
+      "name": "Dört Peynirli",
+      "nameEn": "Four Cheese",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 870,
+      "description": "Mozzarella, parmesan, eski kaşar, cheddar",
+      "descriptionEn": "Mozzarella, parmesan, aged kaşar, cheddar"
+     },
+     {
+      "id": "oglen-sucuk",
+      "name": "Sucuk",
+      "nameEn": "Soudjouk",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 890,
+      "description": "Özel üretim sucuk, eski kaşar, parmesan",
+      "descriptionEn": "Specially crafted soudjouk, aged kaşar cheese, parmesan"
+     },
+     {
+      "id": "oglen-alaturka",
+      "name": "Alaturka",
+      "nameEn": "Alaturca",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 980,
+      "description": "Özel üretim sucuk, dana jambon, dana sosis, siyah zeytin, tane mısır ve özel peynir sos ile",
+      "descriptionEn": "Specially made sausage, beef ham, beef sausage, black olives, corn kernels, and special cheese sauce."
+     },
+     {
+      "id": "oglen-dana-tiftik",
+      "name": "Dana Tiftik",
+      "nameEn": "Pulled Beef",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 1060,
+      "description": "Mozzarella, eski kaşar, isli Çerkez peyniri, karamelize soğan, dana jus, taze roka,  isli tuz",
+      "descriptionEn": "Mozzarella, aged kaşar, smoked Circassian cheese, caramelized onions, beef jus, fresh arugula, smoked salt"
+     }
+    ]
+   },
+   {
+    "id": "oglen-makarna",
+    "title": "Makarna",
+    "titleEn": "Pasta",
+    "items": [
+     {
+      "id": "oglen-alfredo",
+      "name": "Alfredo",
+      "nameEn": "Rigatoni Alfredo",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 740,
+      "description": "Izgara tavuk parçaları ve sotelenmiş mantar ile hazırlanan klasik rigatoni, parmesan peyniri, krema sos",
+      "descriptionEn": "A classic fettuccine tossed with grilled chicken, sautéed mushrooms, parmesan cheese, and cream sauce"
+     },
+     {
+      "id": "oglen-bolonez",
+      "name": "Bolonez",
+      "nameEn": "Bolognese Paccheri",
+      "allergens": [
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 780,
+      "description": "Tarhun ve kekikle lezzetlendirilmiş  bolonez sos, üzerine parmesan peyniri",
+      "descriptionEn": "Bolognese sauce with tarragon and thyme, topped with aged parmesan cheese"
+     },
+     {
+      "id": "oglen-somon-kuskonmaz",
+      "name": "Somon & Kuşkonmaz",
+      "nameEn": "Salmon & Asparagus Tagliatelle",
+      "allergens": [
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 900,
+      "description": "Somon parçaları, taze kuşkonmaz, limon kabuğu ve bahar otlarıyla zenginleştirilmiş krema soslu tagliatelle.",
+      "descriptionEn": "Salmon flakes and fresh asparagus tossed with tagliatelle in a lemon zest and herb-infused cream sauce."
+     },
+     {
+      "id": "oglen-deniz-mahsullu",
+      "name": "Deniz Mahsullü",
+      "nameEn": "Seafood Pappardelle",
+      "allergens": [
+       "CS",
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 1200,
+      "description": "Şarap ve zeytinyağında sotelenmiş deniz mahsulleri, kuru ve taze fesleğen, limon kabuğu rendesi, domates sos",
+      "descriptionEn": "Seafood sautéed in wine and olive oil, dried and fresh basil, lemon zest, tomato sauce"
+     }
+    ]
+   },
+   {
+    "id": "oglen-ege-klasikleri",
+    "title": "Ege Klasikleri",
+    "titleEn": "Aegean Classics",
+    "items": [
+     {
+      "id": "oglen-marmaris-yogurtlamasi",
+      "name": "Marmaris Yoğurtlaması",
+      "nameEn": "Fried Vegetables with Yogurt",
+      "allergens": [
+       "MK"
+      ],
+      "price": 575,
+      "description": "Kızarmış patates, patlıcan, biber ve sarımsaklı yoğurt"
+     },
+     {
+      "id": "oglen-subye-kokorec",
+      "name": "Sübye Kokoreç",
+      "nameEn": "Kokoreç-Style Spiced Squid",
+      "allergens": [
+       "MK",
+       "MS",
+       "SP"
+      ],
+      "price": 800,
+      "description": "Kokoreç usulü baharatlanarak hazırlanan bu özgün lezzet",
+      "descriptionEn": "A kokoreç-style dish made with tender squid (sübye), seasoned with Anatolian spices and grilled to perfection."
+     },
+     {
+      "id": "oglen-tereyagli-karides",
+      "name": "Tereyağlı Karides",
+      "nameEn": "Shrimp en Cocotte",
+      "allergens": [
+       "CS",
+       "MK",
+       "WH"
+      ],
+      "price": 1000
+     },
+     {
+      "id": "oglen-jumbo-karides",
+      "name": "Jumbo Karides",
+      "nameEn": "Jumbo Shrimp en Cocotte",
+      "allergens": [
+       "CS",
+       "MK",
+       "WH"
+      ],
+      "price": 1400,
+      "description": "(4 parça / piece)"
+     },
+     {
+      "id": "oglen-kalamar-tava",
+      "name": "Kalamar Tava",
+      "nameEn": "Fried Calamari",
+      "allergens": [
+       "EG",
+       "MD",
+       "MS",
+       "WH"
+      ],
+      "price": 1050,
+      "description": "Toz pancar limon, pürüzsüz tartar",
+      "descriptionEn": "Beetroot powder lemon with smooth tartar"
+     }
+    ]
+   },
+   {
+    "id": "oglen-yancilar",
+    "title": "Yancılar",
+    "titleEn": "Side Dishes",
+    "items": [
+     {
+      "id": "oglen-ev-yapimi-patates-cipsi",
+      "name": "Ev Yapımı Patates Cipsi",
+      "nameEn": "Thinly Sliced Homemade Chips",
+      "allergens": [],
+      "price": 320,
+      "description": "Ev yapımı sos eşliğinde",
+      "descriptionEn": "with our homemade dip"
+     },
+     {
+      "id": "oglen-kasik-patates-kizartmasi",
+      "name": "Kaşık Patates Kızartması",
+      "nameEn": "Fry’n’dip Potatoes",
+      "allergens": [],
+      "price": 300
+     },
+     {
+      "id": "oglen-birali-sogan-halkasi",
+      "name": "Biralı Soğan Halkası",
+      "nameEn": "Beer-Battered Onion Rings",
+      "allergens": [
+       "EG",
+       "MD",
+       "WH"
+      ],
+      "price": 440,
+      "description": "Tarhana mayo",
+      "descriptionEn": "Tarhana emulsion"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "aksam",
+  "title": "Akşam",
+  "hours": "18:00 – 23:00",
+  "sections": [
+   {
+    "id": "aksam-meze-dolabi",
+    "title": "Meze Dolabı",
+    "titleEn": "Mezze Display",
+    "items": [
+     {
+      "id": "aksam-kavun",
+      "name": "Kavun",
+      "nameEn": "Sliced Ripe Melon",
+      "allergens": [],
+      "price": 320
+     },
+     {
+      "id": "aksam-karpuz",
+      "name": "Karpuz",
+      "nameEn": "Sliced Ripe Watermelon",
+      "allergens": [],
+      "price": 250
+     },
+     {
+      "id": "aksam-olgunlastirilmis-ezine-peyniri",
+      "name": "Olgunlaştırılmış Ezine Peyniri",
+      "nameEn": "Aged Ezine Feta Cheese",
+      "allergens": [
+       "MK"
+      ],
+      "price": 300
+     },
+     {
+      "id": "aksam-bergama-tulum-peyniri",
+      "name": "Bergama Tulum Peyniri",
+      "nameEn": "Bergama Tulum Cheese",
+      "allergens": [
+       "MK"
+      ],
+      "price": 360
+     },
+     {
+      "id": "aksam-ev-yapimi-secme-zeytin",
+      "name": "Ev Yapımı Seçme Zeytin",
+      "nameEn": "A delicate selection of the finest olives",
+      "allergens": [],
+      "price": 325
+     },
+     {
+      "id": "aksam-muhammara",
+      "name": "Muhammara",
+      "nameEn": "Pepper Paste with Walnuts and Spices",
+      "allergens": [
+       "SE",
+       "TN"
+      ],
+      "price": 360,
+      "description": "Kırı ceviz, nar ekşisi, soğuk sıkım zeytinyağı, nar ekşisi"
+     },
+     {
+      "id": "aksam-pancar-visne-tabule",
+      "name": "Pancar Vişne Tabule",
+      "nameEn": "Beetroot & Cherry Tabouleh",
+      "allergens": [
+       "SE"
+      ],
+      "price": 320
+     },
+     {
+      "id": "aksam-humus",
+      "name": "Humus",
+      "nameEn": "Chickpea Paste with Tahini",
+      "allergens": [
+       "SE"
+      ],
+      "price": 360
+     },
+     {
+      "id": "aksam-hibes",
+      "name": "Hibeş",
+      "nameEn": "Chickpea Tahini Paste with Garlic and Spices",
+      "allergens": [
+       "SE"
+      ],
+      "price": 360
+     },
+     {
+      "id": "aksam-haydari",
+      "name": "Haydari",
+      "nameEn": "Creamy Yogurt with Garlic and Herbs",
+      "allergens": [
+       "MK"
+      ],
+      "price": 340
+     },
+     {
+      "id": "aksam-saksuka",
+      "name": "Şakşuka",
+      "nameEn": "Roasted Vegetables in Tangy Tomato-Pepper Sauce",
+      "allergens": [],
+      "price": 340
+     },
+     {
+      "id": "aksam-bombay-pilaki",
+      "name": "Bombay Pilaki",
+      "nameEn": "Aegean-Style Olive Oil Braised Giant Beans",
+      "allergens": [
+       "SP"
+      ],
+      "price": 340
+     },
+     {
+      "id": "aksam-girit-ezme",
+      "name": "Girit Ezme",
+      "nameEn": "Mashed Cheese Mix with Pistachio",
+      "allergens": [
+       "MK",
+       "TN"
+      ],
+      "price": 380
+     },
+     {
+      "id": "aksam-atom",
+      "name": "Atom",
+      "nameEn": "Spicy Roasted Peppers with Garlic Yogurt",
+      "allergens": [
+       "MK"
+      ],
+      "price": 360
+     },
+     {
+      "id": "aksam-kuru-cacik",
+      "name": "Kuru Cacık",
+      "nameEn": "Thick Yogurt with Cucumber & Herbs",
+      "allergens": [
+       "MK",
+       "TN"
+      ],
+      "price": 380
+     },
+     {
+      "id": "aksam-mutebbel",
+      "name": "Mütebbel",
+      "nameEn": "Smoky Eggplant & Tahini Spread",
+      "allergens": [
+       "MK",
+       "SE",
+       "TN"
+      ],
+      "price": 380
+     },
+     {
+      "id": "aksam-semizotu",
+      "name": "Semizotu",
+      "nameEn": "Purslane",
+      "allergens": [],
+      "price": 380
+     },
+     {
+      "id": "aksam-enginar",
+      "name": "Enginar",
+      "nameEn": "Aegean-Style Olive Oil Braised Artichoke",
+      "allergens": [],
+      "price": 390
+     },
+     {
+      "id": "aksam-mucver",
+      "name": "Mücver",
+      "nameEn": "Crispy Aegean Green Fritters with Yogurt",
+      "allergens": [
+       "EG",
+       "MK"
+      ],
+      "price": 400
+     },
+     {
+      "id": "aksam-visneli-yaprak-sarma",
+      "name": "Vişneli Yaprak Sarma",
+      "nameEn": "Aegean-Style Stuffed Vine Leaves with Sour Cherries",
+      "allergens": [
+       "SP"
+      ],
+      "price": 380
+     },
+     {
+      "id": "aksam-kabak-cicegi-dolmasi",
+      "name": "Kabak Çiçeği Dolması",
+      "nameEn": "Stuffed Zucchini Blossoms",
+      "allergens": [],
+      "price": 400
+     },
+     {
+      "id": "aksam-kopeoglu",
+      "name": "Köpeoğlu",
+      "nameEn": "Fried Eggplant & Peppers with Garlic Yogurt and Crispy cheese",
+      "allergens": [
+       "MK"
+      ],
+      "price": 400
+     },
+     {
+      "id": "aksam-fava",
+      "name": "Fava",
+      "nameEn": "Mashed Broad Beans",
+      "allergens": [
+       "SP"
+      ],
+      "price": 425
+     },
+     {
+      "id": "aksam-ege-otlari",
+      "name": "Ege Otları",
+      "nameEn": "Wild Aegean Greens",
+      "allergens": [
+       "MK"
+      ],
+      "price": 475,
+      "description": "Ilık sunum, yoğurt, kale biber, acı yağ"
+     },
+     {
+      "id": "aksam-deniz-borulcesi",
+      "name": "Deniz Börülcesi",
+      "nameEn": "Marinated Samphire with Garlic & Olive Oil",
+      "allergens": [
+       "SP"
+      ],
+      "price": 480
+     },
+     {
+      "id": "aksam-lakerda",
+      "name": "Lakerda",
+      "nameEn": "Salted Bonito",
+      "allergens": [
+       "FH"
+      ],
+      "price": 425
+     }
+    ]
+   },
+   {
+    "id": "aksam-sicak-baslangic",
+    "title": "Sıcak Başlangıç",
+    "titleEn": "Hot Starters",
+    "items": [
+     {
+      "id": "aksam-ev-yapimi-patates-cipsi",
+      "name": "Ev Yapımı Patates Cipsi",
+      "nameEn": "Thinly Sliced Homemade Chips",
+      "allergens": [
+       "EG"
+      ],
+      "price": 320,
+      "description": "Ev yapımı sos eşliğinde (EG)",
+      "descriptionEn": "with our homemade dip"
+     },
+     {
+      "id": "aksam-kasik-patates-kizartmasi",
+      "name": "Kaşık Patates Kızartması",
+      "nameEn": "Fry’n’dip Potatoes",
+      "allergens": [],
+      "price": 300
+     },
+     {
+      "id": "aksam-avci-boregi",
+      "name": "Avcı Böreği",
+      "nameEn": "Hunter Rolls",
+      "allergens": [
+       "MK"
+      ],
+      "price": 440,
+      "description": "Minced Meat, Aromatic Herbs & Spices"
+     },
+     {
+      "id": "aksam-kaburgali-citir-borek",
+      "name": "Kaburgalı Çıtır Börek",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 450,
+      "description": "Crispy Pastry, Slow-Cooked Beef Ribs"
+     },
+     {
+      "id": "aksam-sarimsakli-ekmek",
+      "name": "Sarımsaklı Ekmek",
+      "nameEn": "Rustic Garlic & Herb Artisan Bread",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 530
+     },
+     {
+      "id": "aksam-findik-lahmacun",
+      "name": "Fındık Lahmacun",
+      "nameEn": "Very thin Turkish pizza covered with seasoned minced meat",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 550
+     },
+     {
+      "id": "aksam-izmir-tulum-koz-patlican",
+      "name": "İzmir Tulum Köz Patlıcan",
+      "nameEn": "Grilled eggplant topped with melted cheese and sweet sauce",
+      "allergens": [
+       "MK"
+      ],
+      "price": 740
+     },
+     {
+      "id": "aksam-ilik-humus",
+      "name": "Ilık Humus",
+      "nameEn": "Warm Silky Hummus",
+      "allergens": [
+       "MK",
+       "SE"
+      ],
+      "price": 560,
+      "description": "Pastırma yada sucuk seçeneği ile",
+      "descriptionEn": "with coice of soudjouk or pastrami"
+     },
+     {
+      "id": "aksam-marmaris-yogurtlamasi",
+      "name": "Marmaris Yoğurtlaması",
+      "nameEn": null,
+      "allergens": [
+       "MK"
+      ],
+      "price": 575,
+      "description": "Crispy Seasonal Vegetables, Strained Yogurt, Spicy Butter Drizzle"
+     },
+     {
+      "id": "aksam-tadimlik-keskek",
+      "name": "Tadımlık Keşkek",
+      "nameEn": null,
+      "allergens": [
+       "MK"
+      ],
+      "price": 650,
+      "description": "Traditional Anatolian wheat and meat porridge, served in a small tasting portion."
+     },
+     {
+      "id": "aksam-keci-peyniri-kizartma",
+      "name": "Keçi Peyniri Kızartma",
+      "nameEn": "Crispy Goat Cheese with Marmaris Pine honey",
+      "allergens": [
+       "EG",
+       "MK",
+       "WH"
+      ],
+      "price": 640
+     },
+     {
+      "id": "aksam-kuzu-etli-sevketi-bostan",
+      "name": "Kuzu Etli Şevketi Bostan",
+      "nameEn": "Slow-Roasted Lamb Shoulder with Aegean Blessed Thistle",
+      "allergens": [],
+      "price": 750
+     },
+     {
+      "id": "aksam-subye-kokorec",
+      "name": "Sübye Kokoreç",
+      "nameEn": "Cuttlefish Kokoretsi with Aromatic Mediterranean Herbs",
+      "allergens": [
+       "MS"
+      ],
+      "price": 750
+     },
+     {
+      "id": "aksam-deniz-mahsullu-kavurma",
+      "name": "Deniz Mahsullü Kavurma",
+      "nameEn": null,
+      "allergens": [
+       "CS",
+       "FH",
+       "MS"
+      ],
+      "price": 950,
+      "description": "Sailor’s Delight - Premium Seafood Sauté, Aromatic Spices"
+     },
+     {
+      "id": "aksam-kalamar-tava",
+      "name": "Kalamar Tava",
+      "nameEn": null,
+      "allergens": [
+       "EG",
+       "MK",
+       "MS"
+      ],
+      "price": 1050,
+      "description": "Crispy Golden Calamari, Homemade Tartar Sauce"
+     },
+     {
+      "id": "aksam-tereyagli-karides",
+      "name": "Tereyağlı Karides",
+      "nameEn": null,
+      "allergens": [
+       "CS",
+       "MK"
+      ],
+      "price": 1000,
+      "description": "Shrimps en Cocotte, Garlic-Infused Butter"
+     },
+     {
+      "id": "aksam-jumbo-karides",
+      "name": "Jumbo Karides",
+      "nameEn": "(4 parça / pieces)",
+      "allergens": [
+       "CS",
+       "MK"
+      ],
+      "price": 1490,
+      "description": "Jumbo Shrimps en Cocotte, Garlic-Infused Butter, Garden Parsley"
+     },
+     {
+      "id": "aksam-ahtapot-izgara",
+      "name": "Ahtapot Izgara",
+      "nameEn": null,
+      "allergens": [
+       "MS"
+      ],
+      "price": 1240,
+      "description": "Grilled Tender Octopus, Lemon & Extra Virgin Olive Oil Emulsion"
+     }
+    ]
+   },
+   {
+    "id": "aksam-salata",
+    "title": "Salata",
+    "titleEn": "Salads",
+    "items": [
+     {
+      "id": "aksam-yesil",
+      "name": "Yeşil",
+      "nameEn": "Green",
+      "allergens": [],
+      "price": 525,
+      "description": "Taze roka, göbek marul, maydanoz, fesleğen, nane ve dereotu, ince dilimlenmiş yeşil elma ile tamamlanır",
+      "descriptionEn": "Fresh arugula, lettuce, parsley, basil, mint, and dill, finished with thinly sliced green apple"
+     },
+     {
+      "id": "aksam-domates-salatasi",
+      "name": "Domates Salatası",
+      "nameEn": "Heirloom Tomato & Sweet Onion Salad with purple basil",
+      "allergens": [
+       "SY"
+      ],
+      "price": 580,
+      "description": "Fresh Herbs & Premium Olive Oil Dressing"
+     },
+     {
+      "id": "aksam-roka-salatasi",
+      "name": "Roka Salatası",
+      "nameEn": "Garden Rocket Salad",
+      "allergens": [
+       "MK",
+       "TN"
+      ],
+      "price": 620,
+      "description": "Aged Parmesan Flakes, walnut & Pomegranate Dressing"
+     },
+     {
+      "id": "aksam-yaz",
+      "name": "Yaz",
+      "nameEn": "Summer",
+      "allergens": [
+       "MK",
+       "TN"
+      ],
+      "price": 640,
+      "description": "Semizotu, roka ve çilek ile hazırlanan ferahlatıcı yaz salatası, domates reçeli suyu ve kırmızı vinaigrette ile lezzetlendirilir. Badem ve Bergama tulum peyniri ile tamamlanır.",
+      "descriptionEn": "Purslane, arugula, and strawberries in a refreshing summer salad, enhanced with tomato jam juice and red vinaigrette, finished with almond and aged Bergama tulum cheese."
+     }
+    ]
+   },
+   {
+    "id": "aksam-denizden",
+    "title": "Denizden",
+    "titleEn": "From The Sea",
+    "items": [
+     {
+      "id": "aksam-izgara-cipura-levrek",
+      "name": "Izgara Çipura / Levrek",
+      "nameEn": null,
+      "allergens": [
+       "FH"
+      ],
+      "options": [
+       {
+        "id": "izgara-cipura",
+        "name": "Izgara Çipura",
+        "price": 940
+       },
+       {
+        "id": "levrek",
+        "name": "Levrek",
+        "price": 1000
+       }
+      ],
+      "price": 940,
+      "description": "Grilled Sea Bream or Sea Bass with Chimichurri, Fondant Potatoes & Greens"
+     },
+     {
+      "id": "aksam-izgara-somon",
+      "name": "Izgara Somon",
+      "nameEn": "Grilled Salmon",
+      "allergens": [
+       "FH",
+       "MK"
+      ],
+      "price": 1150,
+      "description": "Mashed potatoes, sautéed spinach, microgreens"
+     }
+    ]
+   },
+   {
+    "id": "aksam-mera-kumes",
+    "title": "Mera / Kümes",
+    "titleEn": "Meat & Poultry",
+    "items": [
+     {
+      "id": "aksam-dana-bonfile-200g",
+      "name": "Dana Bonfile 200g",
+      "nameEn": "Beef Tenderloin 200g",
+      "allergens": [
+       "MK"
+      ],
+      "price": 1750,
+      "description": "Patates püresi, ızgara kuşkonmaz ve bebek mısır ile servis edilir",
+      "descriptionEn": "Served with mashed potatoes, grilled asparagus, and baby corn"
+     },
+     {
+      "id": "aksam-surf-turf-200g",
+      "name": "Surf & Turf 200g",
+      "nameEn": "Surf & Turf 200g",
+      "allergens": [
+       "CS",
+       "MK"
+      ],
+      "price": 2200,
+      "description": "Patates püresi, ızgara kuşkonmaz ve bebek mısır ile servis edilir",
+      "descriptionEn": "Served with mashed potatoes, grilled asparagus, and baby corn"
+     },
+     {
+      "id": "aksam-lokum-400g",
+      "name": "Lokum 400g",
+      "nameEn": "Sizzling Tenderloin 400g",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 3200,
+      "description": "Sade yağ sıcak servis edilen dana bonfile, karamelize soğanlı patates püresi ve sıcak ekşi mayalı ekmek ile birlikte sunulmaktadır.",
+      "descriptionEn": "Beef tenderloin served sizzling clarified butter, accompanied by caramelized onion mashed potatoes,  and warm sourdough bread"
+     },
+     {
+      "id": "aksam-kuzu-pirzola",
+      "name": "Kuzu Pirzola",
+      "nameEn": "Lamb Chops",
+      "allergens": [
+       "EG"
+      ],
+      "price": 1400,
+      "description": "Bebek patates, taze kekik ve chimichurri sosu ile servis edilir.",
+      "descriptionEn": "Served with crispy baby potatoes, fresh thyme, mint sauce"
+     },
+     {
+      "id": "aksam-sakizdirik-kebabi",
+      "name": "Sakızdırık Kebabı",
+      "nameEn": "The Mastic Skewer",
+      "allergens": [],
+      "price": 1250,
+      "description": "Aromatik yerel kebap, dana ve kuzu karışımı ile yapılan, doğal damla sakızı ağacı dalı üzerinde közde ızgara edilen",
+      "descriptionEn": "Aromatic local kebab made with a blend of beef and lamb, grilled over embers on a natural mastic tree branch"
+     },
+     {
+      "id": "aksam-cokertme-kebabi",
+      "name": "Çökertme Kebabı",
+      "nameEn": "Pan Seared Beef with Garlic Yogurt & crisp shoestring fries",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 1150
+     },
+     {
+      "id": "aksam-izgara-kofte",
+      "name": "Izgara Köfte",
+      "nameEn": "Grilled Meatballs",
+      "allergens": [
+       "WH"
+      ],
+      "price": 950,
+      "description": "Sumac Onion Salad & Kale Pepper"
+     },
+     {
+      "id": "aksam-tavuk-sis",
+      "name": "Tavuk Şiş",
+      "nameEn": "Chicken Skewers",
+      "allergens": [
+       "SE"
+      ],
+      "price": 890,
+      "description": "Humus ve  Tahin Sosuyla",
+      "descriptionEn": "with Hummus & Tahini Glaze"
+     },
+     {
+      "id": "aksam-katsu-curry",
+      "name": "Katsu Curry",
+      "nameEn": null,
+      "allergens": [
+       "EG",
+       "SY",
+       "WH"
+      ],
+      "price": 1000,
+      "description": "Çıtır pane kaplı tavuk, Japon köri sosu ile birlikte yasemin pirinç pilavı, marine edilmiş turşu zencefil",
+      "descriptionEn": "Crispy breaded chicken schnitzel served with Japanese curry sauce, jasmine rice, pickled ginger"
+     }
+    ]
+   },
+   {
+    "id": "aksam-makarna",
+    "title": "Makarna",
+    "titleEn": "Pasta",
+    "items": [
+     {
+      "id": "aksam-alfredo",
+      "name": "Alfredo",
+      "nameEn": "Rigatoni Alfredo",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 740,
+      "description": "Izgara tavuk parçaları ve sotelenmiş mantar ile hazırlanan klasik fettuccine, parmesan peyniri, krema sos ve trüf püresi ile zenginleştirilir.",
+      "descriptionEn": "A classic fettuccine tossed with grilled chicken, sautéed mushrooms, parmesan cheese, and cream sauce, enriched with truffle purée."
+     },
+     {
+      "id": "aksam-bolonez",
+      "name": "Bolonez",
+      "nameEn": "Bolognese Paccheri",
+      "allergens": [
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 780,
+      "description": "Tarhun ve kekikle lezzetlendirilmiş  bolonez sos, üzerine parmesan peyniri",
+      "descriptionEn": "Bolognese sauce with tarragon and thyme, topped with aged parmesan cheese"
+     },
+     {
+      "id": "aksam-somon-kuskonmaz",
+      "name": "Somon & Kuşkonmaz",
+      "nameEn": "Salmon & Asparagus Tagliatelle",
+      "allergens": [
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 900,
+      "description": "Somon parçaları, taze kuşkonmaz, limon kabuğu ve bahar otlarıyla zenginleştirilmiş krema soslu tagliatelle.",
+      "descriptionEn": "Salmon flakes and fresh asparagus tossed with tagliatelle in a lemon zest and herb-infused cream sauce."
+     },
+     {
+      "id": "aksam-deniz-mahsullu",
+      "name": "Deniz Mahsullü",
+      "nameEn": "Seafood Pappardelle",
+      "allergens": [
+       "CS",
+       "MD",
+       "MK",
+       "WH"
+      ],
+      "price": 1200,
+      "description": "Şarap ve zeytinyağında sotelenmiş deniz mahsulleri, kuru ve taze fesleğen, limon kabuğu rendesi, domates sos",
+      "descriptionEn": "Seafood sautéed in wine and olive oil, dried and fresh basil, lemon zest, tomato sauce"
+     }
+    ]
+   },
+   {
+    "id": "aksam-tas-firindan",
+    "title": "Taş Fırından",
+    "titleEn": "From Stove Oven",
+    "items": [
+     {
+      "id": "aksam-margherita",
+      "name": "Margherita",
+      "nameEn": null,
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 740,
+      "description": "Domates sos, mozzarella, taze fesleğen",
+      "descriptionEn": "Tomato sauce, mozzarella, fresh basil"
+     },
+     {
+      "id": "aksam-dort-peynirli",
+      "name": "Dört Peynirli",
+      "nameEn": "Four Cheese",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 870,
+      "description": "Mozzarella, parmesan, eski kaşar, cheddar",
+      "descriptionEn": "Mozzarella, parmesan, aged kaşar, cheddar"
+     },
+     {
+      "id": "aksam-sucuk",
+      "name": "Sucuk",
+      "nameEn": "Soudjouk",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 890,
+      "description": "Özel üretim sucuk, eski kaşar, parmesan, karamelize fındık",
+      "descriptionEn": "Specially crafted soudjouk, aged kaşar cheese, parmesan, caramelized hazelnuts"
+     },
+     {
+      "id": "aksam-alaturka",
+      "name": "Alaturka",
+      "nameEn": "Alaturca",
+      "allergens": [
+       "MK",
+       "WH"
+      ],
+      "price": 980,
+      "description": "Özel üretim sucuk, dana jambon, dana sosis, siyah zeytin, tane mısır ve özel peynir sos ile",
+      "descriptionEn": "Specially made sausage, beef ham, beef sausage, black olives, corn kernels, and special cheese sauce."
+     },
+     {
+      "id": "aksam-dana-tiftik",
+      "name": "Dana Tiftik",
+      "nameEn": "Pulled Beef",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 1060,
+      "description": "Mozzarella, eski kaşar, isli Çerkez peyniri, karamelize soğan, dana jus, taze roka, karamelize fındık, isli tuz",
+      "descriptionEn": "Mozzarella, aged kaşar, smoked Circassian cheese, caramelized onions, beef jus, fresh arugula, caramelized hazelnuts, smoked salt"
+     }
+    ]
+   },
+   {
+    "id": "aksam-vegan",
+    "title": "Vegan",
+    "titleEn": "Vegan",
+    "items": [
+     {
+      "id": "aksam-izgara-sebze-humus",
+      "name": "Izgara Sebze & Humus",
+      "nameEn": "Grilled Vegetables & Hummus",
+      "allergens": [
+       "SE"
+      ],
+      "price": 920,
+      "description": "with Olive Oil & Herb Oil"
+     },
+     {
+      "id": "aksam-musakka",
+      "name": "Musakka",
+      "nameEn": "Plant-Based Moussaka",
+      "allergens": [
+       "SY"
+      ],
+      "price": 940,
+      "description": "with Vegan Béchamel & Herb Oil"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tatli",
+  "title": "Tatlı",
+  "hours": "Gün boyu",
+  "sections": [
+   {
+    "id": "tatli-tatlilar",
+    "title": "Tatlılar",
+    "titleEn": "Desserts",
+    "items": [
+     {
+      "id": "tatli-kabak",
+      "name": "Kabak",
+      "nameEn": "Pumpkin",
+      "allergens": [],
+      "price": 500,
+      "description": "Çıtır kabak, file badem, ev yapımı tahin dondurma",
+      "descriptionEn": "Crispy pumpkin dessert & tahini ice cream with fillet almond"
+     },
+     {
+      "id": "tatli-orman-mantari-tiramisu",
+      "name": "Orman Mantarı Tiramisu",
+      "nameEn": "Wild Mushroom Tiramisu",
+      "allergens": [],
+      "price": 520,
+      "description": "Kedi dili, karamelize çıntar (kanlıca mantarı), Mascarpone kreması",
+      "descriptionEn": "Ladyfingers, caramelized milkcap (lactarius deliciosus), mascarpone cream"
+     },
+     {
+      "id": "tatli-kizarmis-dondurma",
+      "name": "Kızarmış Dondurma",
+      "nameEn": "Fried Baklava",
+      "allergens": [],
+      "price": 600,
+      "description": "Maraş Dondurması, 9 kat baklava yufkası",
+      "descriptionEn": "Maraş ice cream, 9 layer filo pastry"
+     },
+     {
+      "id": "tatli-pekmezli-muhallebi",
+      "name": "Pekmezli Muhallebi",
+      "nameEn": "Molasses Pudding",
+      "allergens": [],
+      "price": 480,
+      "description": "Keçiboynuzu pekmezi, karamelize fındık",
+      "descriptionEn": "Carob molasses, caramelized hazelnut"
+     },
+     {
+      "id": "tatli-kale-biberi",
+      "name": "Kale Biberi",
+      "nameEn": "Kale Pepper",
+      "allergens": [],
+      "price": 720,
+      "description": "Bitter çikolata ganaj dolgulu, mevsim meyvesi compote",
+      "descriptionEn": "Dark chocolate ganache filled with seasonal fruit compote"
+     },
+     {
+      "id": "tatli-mevsim-meyveleri",
+      "name": "Mevsim Meyveleri",
+      "nameEn": "Seasonal Fruit Selection",
+      "allergens": [],
+      "price": 600,
+      "description": "Günün en taze meyve seçkisi",
+      "descriptionEn": "A selection of the freshest seasonal fruits"
+     },
+     {
+      "id": "tatli-yerel-peynir-seckisi",
+      "name": "Yerel Peynir Seçkisi",
+      "nameEn": "Artisanal Local Cheeses",
+      "allergens": [
+       "MK",
+       "TN",
+       "WH"
+      ],
+      "price": 1250,
+      "description": "Şefin seçtiği yöresel peynirler, mevsim eşlikçileri ve ev yapımı dokunuşlarla servis edilir.",
+      "descriptionEn": "A curated selection of regional cheeses served with seasonal accompaniments and house-made touches."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "icecek",
+  "title": "İçecek",
+  "hours": "Gün boyu",
+  "sections": [
+   {
+    "id": "icecek-kahve",
+    "title": "Kahve",
+    "items": [
+     {
+      "id": "icecek-turk-kahvesi",
+      "name": "Türk Kahvesi",
+      "price": 150,
+      "allergens": [],
+      "nameEn": "Turkish Coffee"
+     },
+     {
+      "id": "icecek-turk-kahvesi-duble",
+      "name": "Türk Kahvesi Duble",
+      "price": 200,
+      "allergens": [],
+      "nameEn": "Double Turkish Coffee"
+     },
+     {
+      "id": "icecek-damla-sakizli-turk-kahvesi",
+      "name": "Damla Sakızlı Türk Kahvesi",
+      "price": 175,
+      "allergens": []
+     },
+     {
+      "id": "icecek-espresso",
+      "name": "Espresso",
+      "price": 150,
+      "allergens": []
+     },
+     {
+      "id": "icecek-double-espresso",
+      "name": "Double Espresso",
+      "price": 200,
+      "allergens": []
+     },
+     {
+      "id": "icecek-americano",
+      "name": "Americano",
+      "price": 175,
+      "allergens": []
+     },
+     {
+      "id": "icecek-filtre-kahve",
+      "name": "Filtre Kahve",
+      "price": 200,
+      "allergens": [],
+      "nameEn": "Filter Coffee"
+     },
+     {
+      "id": "icecek-cafe-latte",
+      "name": "Cafe Latte",
+      "price": 200,
+      "allergens": []
+     },
+     {
+      "id": "icecek-cappuccino",
+      "name": "Cappuccino",
+      "price": 200,
+      "allergens": []
+     },
+     {
+      "id": "icecek-flat-white",
+      "name": "Flat White",
+      "price": 200,
+      "allergens": []
+     },
+     {
+      "id": "icecek-mocha",
+      "name": "Mocha",
+      "price": 225,
+      "allergens": []
+     },
+     {
+      "id": "icecek-affogato",
+      "name": "Affogato",
+      "price": 250,
+      "allergens": [],
+      "nameEn": "Vanilyalı dondurma ve espresso",
+      "description": "Vanilyalı dondurma ve espresso"
+     }
+    ]
+   },
+   {
+    "id": "icecek-cay",
+    "title": "Çay",
+    "items": [
+     {
+      "id": "icecek-demleme-cay",
+      "name": "Demleme Çay",
+      "price": 75,
+      "allergens": [],
+      "nameEn": "Turkish Style Brewed Tea",
+      "description": "Özenle demlenmiş çay, ev yapımı günlük kurabiye, özel sunum tabağında"
+     },
+     {
+      "id": "icecek-fincan-cay",
+      "name": "Fincan Çay",
+      "price": 125,
+      "allergens": [],
+      "nameEn": "Big Glass Mug Turkish Tea"
+     },
+     {
+      "id": "icecek-earl-grey",
+      "name": "Earl Grey",
+      "price": 150,
+      "allergens": []
+     },
+     {
+      "id": "icecek-detox-tea",
+      "name": "Detox Tea",
+      "price": 190,
+      "allergens": [],
+      "description": "Zencefil, Tarçın, Karanfil | Ginger, Cinnamon, Clove"
+     },
+     {
+      "id": "icecek-kis-cayi-winter-tea",
+      "name": "Kış Çayı Winter Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-hibiscus",
+      "name": "Hibiscus",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-ada-cayi-sage-tea",
+      "name": "Ada Çayı Sage Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-ihlamur-linden-tea",
+      "name": "Ihlamur Linden Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-papatya-daisy-tea",
+      "name": "Papatya Daisy Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-yesil-cay-green-tea",
+      "name": "Yeşil Çay Green Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-yaseminli-yesil-cay-jasmin-green-tea",
+      "name": "Yaseminli Yeşil Çay Jasmin Green Tea",
+      "price": 190,
+      "allergens": []
+     },
+     {
+      "id": "icecek-kavunlu-beyaz-cay-melon-infused-white-tea",
+      "name": "Kavunlu Beyaz Çay Melon infused White Tea",
+      "price": 190,
+      "allergens": []
+     }
+    ]
+   },
+   {
+    "id": "icecek-soguk-icecekler",
+    "title": "Soğuk Içecekler",
+    "items": [
+     {
+      "id": "icecek-su-330ml-water",
+      "name": "Su 330ml Water",
+      "price": 95,
+      "allergens": []
+     },
+     {
+      "id": "icecek-su-750ml-water",
+      "name": "Su 750ml Water",
+      "price": 145,
+      "allergens": []
+     },
+     {
+      "id": "icecek-beypazari-soda-200ml",
+      "name": "Beypazarı Soda 200ml",
+      "price": 115,
+      "allergens": []
+     },
+     {
+      "id": "icecek-uludag-premium-250ml",
+      "name": "Uludağ Premium 250ml",
+      "price": 145,
+      "allergens": [],
+      "nameEn": "Mineral Water"
+     },
+     {
+      "id": "icecek-uludag-premium-750ml",
+      "name": "Uludağ Premium 750ml",
+      "price": 250,
+      "allergens": [],
+      "nameEn": "Mineral Water"
+     },
+     {
+      "id": "icecek-mesrubat-soft-drinks",
+      "name": "Meşrubat Soft Drinks",
+      "price": 145,
+      "allergens": [],
+      "description": "(Coca-Cola®, Fuse Tea, Cappy, Schweppes, Uludağ Frutti, Goca Marmaris Gazozu)"
+     },
+     {
+      "id": "icecek-churchill",
+      "name": "Churchill",
+      "price": 140,
+      "allergens": []
+     },
+     {
+      "id": "icecek-ayran",
+      "name": "Ayran",
+      "price": 125,
+      "allergens": [],
+      "options": [
+       {
+        "id": "o0",
+        "name": "Küçük",
+        "price": 125
+       },
+       {
+        "id": "o1",
+        "name": "Büyük",
+        "price": 145
+       }
+      ],
+      "description": "Nane, Fesleğen, Kuzukulağı"
+     },
+     {
+      "id": "icecek-redbull",
+      "name": "RedBull®",
+      "price": 225,
+      "allergens": [],
+      "description": "Original, Sugar Free"
+     },
+     {
+      "id": "icecek-ev-yapimi-limonata",
+      "name": "Ev Yapımı Limonata",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Homemade Lemonade",
+      "description": "Nane, Çilek, Elma, Kızılcık, Karpuz, Lavanta"
+     },
+     {
+      "id": "icecek-salgam",
+      "name": "Şalgam",
+      "price": 150,
+      "allergens": [],
+      "nameEn": "Turnip Juice",
+      "description": "Acılı  | Hot Spicy"
+     }
+    ]
+   },
+   {
+    "id": "icecek-soguk-demleme-caylar",
+    "title": "Soğuk Demleme Çaylar",
+    "items": [
+     {
+      "id": "icecek-berry-hibiscus",
+      "name": "Berry & Hibiscus",
+      "price": 300,
+      "allergens": []
+     },
+     {
+      "id": "icecek-yuzu-melon-fizz",
+      "name": "Yuzu & Melon Fizz",
+      "price": 300,
+      "allergens": []
+     },
+     {
+      "id": "icecek-cool-lime",
+      "name": "Cool Lime",
+      "price": 300,
+      "allergens": []
+     }
+    ]
+   },
+   {
+    "id": "icecek-soguk-kahveler",
+    "title": "Soğuk Kahveler",
+    "items": [
+     {
+      "id": "icecek-iced-americano",
+      "name": "Iced Americano",
+      "price": 240,
+      "allergens": []
+     },
+     {
+      "id": "icecek-cold-brew",
+      "name": "Cold Brew",
+      "price": 250,
+      "allergens": []
+     },
+     {
+      "id": "icecek-iced-latte",
+      "name": "Iced Latte",
+      "price": 300,
+      "allergens": []
+     },
+     {
+      "id": "icecek-irish-raspberry-iced-latte",
+      "name": "Irish Raspberry Iced Latte",
+      "price": 350,
+      "allergens": []
+     },
+     {
+      "id": "icecek-salted-caramel-iced-latte",
+      "name": "Salted Caramel Iced Latte",
+      "price": 350,
+      "allergens": []
+     },
+     {
+      "id": "icecek-iced-caffe-mocha",
+      "name": "Iced Caffè Mocha",
+      "price": 325,
+      "allergens": []
+     },
+     {
+      "id": "icecek-iced-caffe-with-ice-cream",
+      "name": "Iced Caffè with Ice Cream",
+      "price": 340,
+      "allergens": []
+     }
+    ]
+   },
+   {
+    "id": "icecek-taze-meyve-suyu",
+    "title": "Taze Meyve Suyu",
+    "items": [
+     {
+      "id": "icecek-nar-portakal",
+      "name": "Nar & Portakal",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Pomegranate & Orange"
+     },
+     {
+      "id": "icecek-sade-portakal",
+      "name": "Sade Portakal",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Orange"
+     },
+     {
+      "id": "icecek-sade-nar",
+      "name": "Sade Nar",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Pomegranate"
+     }
+    ]
+   },
+   {
+    "id": "icecek-meyveli-mineralli-su",
+    "title": "Meyveli Maden Suyu",
+    "items": [
+     {
+      "id": "icecek-strawberry-spark",
+      "name": "Strawberry Spark",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Strawberry puree + soda"
+     },
+     {
+      "id": "icecek-red-berries-cooler",
+      "name": "Red Berries Cooler",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Red Berries puree + soda"
+     },
+     {
+      "id": "icecek-peach-fizz",
+      "name": "Peach Fizz",
+      "price": 225,
+      "allergens": [],
+      "nameEn": "Peach puree + soda"
+     }
+    ]
+   },
+   {
+    "id": "icecek-saglikli-taze",
+    "title": "Sağlıklı & Taze",
+    "items": [
+     {
+      "id": "icecek-berry-detox",
+      "name": "Berry Detox",
+      "price": 300,
+      "allergens": [],
+      "description": "Red berries, blueberries, fresh mint, iced water"
+     },
+     {
+      "id": "icecek-kickstart",
+      "name": "Kickstart",
+      "price": 300,
+      "allergens": [],
+      "description": "Strawberry, banana, and orange juice"
+     }
+    ]
+   },
+   {
+    "id": "icecek-milkshake",
+    "title": "Milkshake & Smoothie",
+    "items": [
+     {
+      "id": "icecek-magnum-shake",
+      "name": "Magnum Shake",
+      "price": 410,
+      "allergens": []
+     },
+     {
+      "id": "icecek-milkshake",
+      "name": "Milkshake",
+      "price": 340,
+      "allergens": [],
+      "description": "(Chocolate, Strawberry, Banana, Oreo, Lotus)"
+     },
+     {
+      "id": "icecek-island-shake",
+      "name": "Island Shake",
+      "price": 340,
+      "allergens": [],
+      "description": "Banana, coconut, vanilla ice cream, milk"
+     },
+     {
+      "id": "icecek-berry-yogurt",
+      "name": "Berry Yogurt",
+      "price": 340,
+      "allergens": [],
+      "description": "Blueberry, raspberry, strawberry and yogurt"
+     }
+    ]
+   },
+   {
+    "id": "icecek-frozen",
+    "title": "Frozen",
+    "items": [
+     {
+      "id": "icecek-frozen-fruit",
+      "name": "Frozen Fruit",
+      "price": 325,
+      "allergens": [],
+      "description": "Çilek, Mango, Kırmızı Meyveler, Hindistan Cevizi, Yuzu Limon, Muz, Şeftali, Çarkıfelek"
+     },
+     {
+      "id": "icecek-mint-lemonade-frozen",
+      "name": "Mint & Lemonade Frozen",
+      "price": 325,
+      "allergens": []
+     },
+     {
+      "id": "icecek-yuzu-lemonade-frozen",
+      "name": "Yuzu & Lemonade Frozen",
+      "price": 325,
+      "allergens": []
+     },
+     {
+      "id": "icecek-tropical-breeze",
+      "name": "Tropical Breeze",
+      "price": 325,
+      "allergens": [],
+      "description": "Pineapple, Mango, Coconut"
+     }
+    ]
+   },
+   {
+    "id": "icecek-alkolsuz-kokteyl",
+    "title": "Alkolsüz Kokteyl",
+    "items": [
+     {
+      "id": "icecek-citrus-punch",
+      "name": "Citrus Punch",
+      "price": 325,
+      "allergens": [],
+      "description": "Lime, Mandalina, Greyfurt, Nane"
+     },
+     {
+      "id": "icecek-sunset-kiss",
+      "name": "Sunset Kiss",
+      "price": 325,
+      "allergens": [],
+      "description": "Yuzu, çilek, mandalina, nar suyu"
+     },
+     {
+      "id": "icecek-ocean-blue",
+      "name": "Ocean Blue",
+      "price": 325,
+      "allergens": [],
+      "description": "Hindistan cevizi sütü, yaban mersini, lime, Çuracao"
+     },
+     {
+      "id": "icecek-spicy-mango",
+      "name": "Spicy Mango",
+      "price": 325,
+      "allergens": [],
+      "description": "Mango ve baharat, tutku meyvesi, lime, biber"
+     },
+     {
+      "id": "icecek-virgin-mojito",
+      "name": "Virgin Mojito",
+      "price": 325,
+      "allergens": [],
+      "description": "Nane, mojito karışımı, Sprite"
+     }
+    ]
+   }
+  ]
+ }
+]
