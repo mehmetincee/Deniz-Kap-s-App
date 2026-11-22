@@ -1,4 +1,4 @@
-import { serviceHours } from '../config/restaurant';
+import { ordering, serviceHours } from '../config/restaurant';
 import generated from './menu.generated.json';
 
 export type AllergenCode =
@@ -129,7 +129,14 @@ export function getProduct(id: string): Product | undefined {
 
 /** Ürünün ait olduğu servis (id öneki: kahvalti-, oglen-, aksam-, tatli-, icecek-, cocuk-). */
 export function serviceOf(productId: string) {
-  return productId.split('-')[0];
+  const prefix = productId.split('-')[0];
+  // Çocuk menüsü öğle menüsünün içinde yer alır
+  return prefix === 'cocuk' ? 'oglen' : prefix;
+}
+
+/** Bu menü uygulamadan sipariş edilebiliyor mu? (Pilot: yalnızca öğle + içecek.) */
+export function isOrderableService(serviceId: string) {
+  return ordering.services.includes(serviceId);
 }
 
 const minutes = (hhmm: string) => {
@@ -148,6 +155,14 @@ export function kitchenOpen(date = new Date()) {
  * Dönüş: null → edilebilir; metin → neden edilemediği.
  */
 export function orderBlockReason(productId: string, date = new Date()): string | null {
+  const service = serviceOf(productId);
+  if (!isOrderableService(service)) {
+    return `Şimdilik ${ordering.areaName.toLocaleLowerCase('tr-TR')}dan yalnızca öğle menüsü ve içecekler sipariş edilebiliyor. Bu ürün için garsonumuza seslenebilirsiniz.`;
+  }
+  const nowMin = date.getHours() * 60 + date.getMinutes();
+  if (nowMin < minutes(ordering.hours.from) || nowMin >= minutes(ordering.hours.to)) {
+    return `${ordering.areaName} servisi ${ordering.hours.from}–${ordering.hours.to} arası sipariş alıyor.`;
+  }
   if (!kitchenOpen(date)) {
     return `Mutfağımız ${serviceHours.kitchen.from}–${serviceHours.kitchen.to} arası sipariş alıyor.`;
   }

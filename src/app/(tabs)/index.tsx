@@ -6,7 +6,7 @@ import { CartBar } from '../../components/CartBar';
 import { Icon, type IconName } from '../../components/Icon';
 import { MemberCard } from '../../components/MemberCard';
 import { Card, Screen, SectionTitle, T, tap } from '../../components/ui';
-import { restaurant } from '../../config/restaurant';
+import { ordering, restaurant } from '../../config/restaurant';
 import { currentServiceId, featured, formatPrice, services } from '../../data/menu';
 import { liveStatus, useStore } from '../../store';
 import { colors, fonts, radius, shadow, space } from '../../theme';
@@ -19,8 +19,15 @@ function greeting(h = new Date().getHours()) {
 }
 
 const actions: { icon: IconName; title: string; sub: string; go: () => void }[] = [
-  { icon: 'table', title: 'Masaya sipariş', sub: 'Masadan / şezlongdan', go: () => router.push({ pathname: '/menu', params: { mode: 'masa' } }) },
-  { icon: 'bag', title: 'Gel-Al', sub: 'Hazır olunca gel', go: () => router.push({ pathname: '/menu', params: { mode: 'gelal' } }) },
+  {
+    icon: 'wave',
+    title: `${ordering.areaName}dan sipariş`,
+    sub: 'Plaj menüsü ve içecekler',
+    go: () => router.push({ pathname: '/menu', params: { mode: 'masa', service: 'oglen' } }),
+  },
+  ordering.pickup
+    ? { icon: 'bag', title: 'Gel-Al', sub: 'Hazır olunca gel', go: () => router.push({ pathname: '/menu', params: { mode: 'gelal' } }) }
+    : { icon: 'card', title: 'İnci kazan', sub: 'Hesapta kartını okut', go: () => router.push('/card') },
   { icon: 'calendar', title: 'Rezervasyon', sub: 'Masanı ayırt', go: () => router.push('/reservation') },
   { icon: 'cake', title: 'Pasta & Davet', sub: 'Özel günler', go: () => router.push('/events') },
 ];
@@ -54,7 +61,7 @@ export default function Home() {
             <View style={{ flex: 1 }}>
               <T v="h3">Siparişiniz {statusText[liveStatus(activeOrder)]}</T>
               <T v="small">
-                {activeOrder.mode === 'masa' ? `Masa ${activeOrder.table}` : `Gel-Al · ${activeOrder.pickupTime}`} · #{activeOrder.id.slice(-5)}
+                {activeOrder.mode === 'masa' ? `${ordering.areaName} ${activeOrder.table}` : `Gel-Al · ${activeOrder.pickupTime}`} · #{activeOrder.id.slice(-5)}
               </T>
             </View>
             <Icon name="chevron-right" size={18} color={colors.muted} />

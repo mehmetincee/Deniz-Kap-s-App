@@ -14,7 +14,9 @@ export default function TableLink() {
   const clean = String(table ?? '')
     .toUpperCase()
     .replace(/[^A-Z0-9ŞÇĞÜÖİ]/g, '')
-    .slice(0, 8);
+    .slice(0, 8)
+    // QR bağlantılarında Türkçe karakter kullanılmaz: /masa/S12 → Ş12
+    .replace(/^S(?=\d)/, 'Ş');
 
   useEffect(() => {
     if (clean) setOrderContext({ orderMode: 'masa', table: clean });

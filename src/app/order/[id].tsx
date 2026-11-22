@@ -5,14 +5,14 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '../../components/Icon';
 import { Button, Card, Divider, IconButton, Screen, T } from '../../components/ui';
 import { formatPrice } from '../../data/menu';
-import { restaurant } from '../../config/restaurant';
+import { ordering, restaurant } from '../../config/restaurant';
 import { liveStatus, useStore, type OrderStatus } from '../../store';
 import { colors, fonts, space } from '../../theme';
 
 const steps: { id: OrderStatus; title: string; sub: string }[] = [
-  { id: 'alindi', title: 'Sipariş alındı', sub: 'Ödemeniz onaylandı' },
+  { id: 'alindi', title: 'Sipariş alındı', sub: 'Ekibimize ulaştı' },
   { id: 'hazirlaniyor', title: 'Hazırlanıyor', sub: 'Mutfağımız siparişinizle ilgileniyor' },
-  { id: 'hazir', title: 'Hazır', sub: 'Servise çıkıyor' },
+  { id: 'hazir', title: 'Hazır', sub: 'Size getiriliyor' },
   { id: 'teslim', title: 'Afiyet olsun', sub: 'Teslim edildi' },
 ];
 
@@ -44,7 +44,7 @@ export default function OrderScreen() {
         <View style={{ flex: 1 }}>
           <T v="label">Sipariş #{order.id.slice(-5)}</T>
           <T v="h1" style={{ marginTop: 4 }}>
-            {order.mode === 'masa' ? `Masa ${order.table}` : `Gel-Al · ${order.pickupTime}`}
+            {order.mode === 'masa' ? `${ordering.areaName} ${order.table}` : `Gel-Al · ${order.pickupTime}`}
           </T>
         </View>
         <IconButton name="close" label="Kapat" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
@@ -80,11 +80,13 @@ export default function OrderScreen() {
         ))}
         <Divider style={{ marginVertical: space.sm }} />
         <View style={styles.line}>
-          <Text style={styles.total}>Ödenen</Text>
+          <Text style={styles.total}>{order.paid ? 'Ödenen' : 'Hesapta ödenecek'}</Text>
           <Text style={styles.total}>{formatPrice(order.total)}</Text>
         </View>
         <T v="small" style={{ color: colors.sea, marginTop: 4 }}>
-          +{order.pearlsEarned} İnci hesabınıza eklendi
+          {order.paid
+            ? `+${order.pearlsEarned} İnci hesabınıza eklendi`
+            : 'Hesabı ödediğinizde İnci’leriniz kartınıza otomatik yüklenir.'}
         </T>
       </Card>
 

@@ -2,12 +2,13 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { formatPrice, type Product } from '../data/menu';
+import { formatPrice, isOrderableService, serviceOf, type Product } from '../data/menu';
 import { colors, fonts, radius, space } from '../theme';
 import { Icon } from './Icon';
 import { tap } from './ui';
 
 export function ProductRow({ product }: { product: Product }) {
+  const orderable = isOrderableService(serviceOf(product.id)) && !product.askWaiter;
   const open = () => {
     tap();
     router.push({ pathname: '/product/[id]', params: { id: product.id } });
@@ -29,14 +30,18 @@ export function ProductRow({ product }: { product: Product }) {
       {product.image ? (
         <View>
           <Image source={product.image} style={styles.image} contentFit="cover" transition={200} />
-          <View style={[styles.add, styles.addOnImage]}>
-            <Icon name="plus" size={16} color={colors.white} strokeWidth={2} />
-          </View>
+          {orderable && (
+            <View style={[styles.add, styles.addOnImage]}>
+              <Icon name="plus" size={16} color={colors.white} strokeWidth={2} />
+            </View>
+          )}
         </View>
-      ) : (
+      ) : orderable ? (
         <View style={styles.add}>
           <Icon name="plus" size={16} color={colors.white} strokeWidth={2} />
         </View>
+      ) : (
+        <Icon name="chevron-right" size={18} color={colors.muted} />
       )}
     </Pressable>
   );

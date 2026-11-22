@@ -38,6 +38,14 @@
           "imageWidth": 180,
           "backgroundColor": "#F5EFE4"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Personel panelinde misafir kartındaki QR kodu okutmak için kamera kullanılır.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "scheme": "denizkapisi",

@@ -7,18 +7,19 @@ import { CartBar } from '../../components/CartBar';
 import { Icon } from '../../components/Icon';
 import { ProductRow } from '../../components/ProductRow';
 import { Chip, T } from '../../components/ui';
-import { currentServiceId, getProduct, services, type Product } from '../../data/menu';
+import { ordering } from '../../config/restaurant';
+import { currentServiceId, getProduct, isOrderableService, services, type Product } from '../../data/menu';
 import { useStore, type OrderMode } from '../../store';
 import { colors, fonts, radius, space } from '../../theme';
 
 export default function Menu() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ mode?: OrderMode }>();
+  const params = useLocalSearchParams<{ mode?: OrderMode; service?: string }>();
   const setOrderContext = useStore((s) => s.setOrderContext);
   const favorites = useStore((s) => s.favorites);
   const table = useStore((s) => s.table);
   const orderMode = useStore((s) => s.orderMode);
-  const [serviceId, setServiceId] = useState(currentServiceId());
+  const [serviceId, setServiceId] = useState(params.service ?? currentServiceId());
   const [query, setQuery] = useState('');
   const [activeSection, setActiveSection] = useState(0);
   const listRef = useRef<SectionList<Product>>(null);
@@ -55,7 +56,7 @@ export default function Menu() {
       <View style={{ paddingTop: insets.top + space.md, paddingHorizontal: space.xl }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <T v="hero">Menü</T>
-          {orderMode === 'masa' && !!table && <Text style={styles.tableBadge}>Masa {table}</Text>}
+          {orderMode === 'masa' && !!table && <Text style={styles.tableBadge}>{ordering.areaName} {table}</Text>}
         </View>
         <View style={styles.search}>
           <Icon name="search" size={18} color={colors.muted} />
@@ -117,9 +118,19 @@ export default function Menu() {
         onScrollToIndexFailed={() => {}}
         ListHeaderComponent={
           !query ? (
-            <Text style={styles.serviceHours}>
-              {service.title} · {service.hours}
-            </Text>
+            <View>
+              <Text style={styles.serviceHours}>
+                {service.title} · {service.hours}
+              </Text>
+              <View style={[styles.pilot, isOrderableService(service.id) && styles.pilotOn]}>
+                <Icon name="wave" size={18} color={isOrderableService(service.id) ? colors.seaDeep : colors.muted} />
+                <Text style={styles.pilotText}>
+                  {isOrderableService(service.id)
+                    ? `${ordering.areaName}dan sipariş açık (${ordering.hours.from}–${ordering.hours.to}). Ödeme hesapta.`
+                    : `Bu menü bilgi amaçlı. ${ordering.areaName}dan şimdilik öğle menüsü ve içecekler sipariş edilebiliyor.`}
+                </Text>
+              </View>
+            </View>
           ) : undefined
         }
         ListFooterComponent={
@@ -166,6 +177,17 @@ const styles = StyleSheet.create({
   sectionsNav: { gap: space.xl, paddingHorizontal: space.xl, paddingVertical: space.md },
   sectionLink: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.muted, paddingVertical: 6 },
   sectionLinkActive: { color: colors.seaDeep, fontFamily: fonts.bodySemi, borderBottomWidth: 2, borderBottomColor: colors.seaDeep },
+  pilot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    marginTop: space.md,
+    padding: space.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.sandDeep,
+  },
+  pilotOn: { backgroundColor: colors.foam },
+  pilotText: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 12.5, lineHeight: 18, color: colors.ink },
   serviceHours: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.muted, marginTop: space.xs },
   sectionHeader: { paddingTop: space.xl, paddingBottom: space.xs },
   sectionTitle: { fontFamily: fonts.display, fontSize: 26, color: colors.ink },

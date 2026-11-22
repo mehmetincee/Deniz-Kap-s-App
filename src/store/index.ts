@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -17,7 +18,8 @@ export type CartLine = {
 };
 
 export type OrderMode = 'masa' | 'gelal';
-export type PaymentMethod = 'kart' | 'cuzdan';
+/** 'hesap': uygulamada ödeme yok, hesap garsona/kasaya ödenir (plaj pilotu). */
+export type PaymentMethod = 'kart' | 'cuzdan' | 'hesap';
 
 export type OrderStatus = 'alindi' | 'hazirlaniyor' | 'hazir' | 'teslim';
 
@@ -35,6 +37,21 @@ export type Order = {
   pearlsEarned: number;
   payment: PaymentMethod;
   status: OrderStatus;
+  /** Ödeme alındı mı? 'hesap' siparişlerinde personel panelinden işaretlenir; İnci o an yüklenir. */
+  paid: boolean;
+  paidAt?: string;
+  memberNo?: string;
+  customerName?: string;
+};
+
+/** Personelin yaptığı puan işlemleri (kasada QR okutma, ödeme alma). */
+export type StaffLog = {
+  id: string;
+  at: string;
+  memberNo: string;
+  amount: number;
+  pearls: number;
+  source: 'qr' | 'siparis' | 'elle';
 };
 
 export type Reservation = {
@@ -73,6 +90,8 @@ export type User = {
   birthday?: string;
   memberNo: string;
   joinedAt: string;
+  /** Kart QR'ını imzalamak için kişiye özel gizli anahtar (sunucuda da saklanır). */
+  secret: string;
 };
 
 type State = {
@@ -100,7 +119,13 @@ type State = {
   setQty: (key: string, qty: number) => void;
   clearCart: () => void;
 
-  placeOrder: (o: Omit<Order, 'id' | 'createdAt' | 'pearlsEarned' | 'status' | 'lines'>) => Order;
+  placeOrder: (o: Omit<Order, 'id' | 'createdAt' | 'pearlsEarned' | 'status' | 'lines' | 'paid' | 'memberNo' | 'customerName'>) => Order;
+  setOrderStatus: (id: string, status: OrderStatus) => void;
+  /** Personel: hesap ödendi → İnci yüklenir. */
+  markPaid: (id: string) => void;
+  /** Personel: kasada okutulan kart için hesap tutarı kadar İnci yükler. */
+  creditPearls: (memberNo: string, amount: number, source: StaffLog['source']) => { ok: true; pearls: number } | { ok: false; reason: string };
+  staffLog: StaffLog[];
   advanceOrder: (id: string) => void;
 
   reorder: (order: Order) => void;
@@ -112,6 +137,8 @@ type State = {
   addReservation: (r: Omit<Reservation, 'id' | 'status'>) => Reservation;
   cancelReservation: (id: string) => void;
 };
+
+const newSecret = () => Array.from(Crypto.getRandomBytes(16), (b) => b.toString(16).padStart(2, '0')).join('');
 
 const uid = (p: string) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
 
@@ -128,18 +155,14 @@ export function tierById(id: TierId) {
 }
 
 /**
- * Siparişin anlık durumu.
- * DEMO: Backend yokken durum, siparişin üzerinden geçen süreden türetilir
- * (gerçekte POS/mutfak ekranından push ile gelir). Böylece eski siparişler
- * ana sayfada sonsuza dek "alındı" görünmez.
+ * Siparişin anlık durumu. Durumu personel panelinden günceller
+ * (sunucu modunda misafirin telefonuna canlı yansır).
  */
 export function liveStatus(order: Order, now = Date.now()): OrderStatus {
   if (order.status === 'teslim') return 'teslim';
-  const sec = (now - new Date(order.createdAt).getTime()) / 1000;
-  if (sec < 20) return 'alindi';
-  if (sec < 60) return 'hazirlaniyor';
-  if (sec < 120) return 'hazir';
-  return 'teslim';
+  // Personel durumu güncellemeyi unutursa sipariş ana sayfada süresiz "aktif" kalmasın
+  const hours = (now - new Date(order.createdAt).getTime()) / 3600000;
+  return hours > 6 ? 'teslim' : order.status;
 }
 
 /** Son 12 aydaki sipariş harcaması: seviye buna göre belirlenir ve zamanla düşer. */
@@ -150,7 +173,7 @@ export function spendLast12Months(orders: Order[], now = Date.now()) {
 
 export function useTier() {
   const orders = useStore((s) => s.orders);
-  const spend = spendLast12Months(orders);
+  const spend = spendLast12Months(orders.filter((o) => o.paid));
   return { spend, ...tierFor(spend) };
 }
 
@@ -177,15 +200,17 @@ export const useStore = create<State>()(
     (set, get) => ({
       ...initialData,
       welcomed: [],
+      staffLog: [],
       setOrderContext: (patch) => set(patch),
 
       signIn: (name, phone) =>
         set((s) => {
-          const user = {
+          const user: User = {
             name,
             phone,
             memberNo: `DK${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`,
             joinedAt: new Date().toISOString(),
+            secret: newSecret(),
           };
           // Hoş geldin hediyesi (ilk çay bizden) her telefona yalnızca bir kez
           if (s.welcomed.includes(phone)) return { user };
@@ -221,28 +246,82 @@ export const useStore = create<State>()(
 
       placeOrder: (o) => {
         const s = get();
-        const { current } = tierFor(spendLast12Months(s.orders));
-        const earned = Math.floor((o.total - o.tip) * current.rate);
+        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const paidNow = o.payment !== 'hesap';
+        // Hesapta ödenen siparişte İnci, ödeme alındığında (markPaid) yüklenir
+        const earned = paidNow ? Math.floor((o.total - o.tip) * current.rate) : 0;
+        const now = new Date().toISOString();
         const order: Order = {
           ...o,
           id: uid('S'),
-          createdAt: new Date().toISOString(),
+          createdAt: now,
           lines: s.cart,
           pearlsEarned: earned,
           status: 'alindi',
+          paid: paidNow,
+          paidAt: paidNow ? now : undefined,
+          memberNo: s.user?.memberNo,
+          customerName: s.user?.name,
         };
-        const now = new Date().toISOString();
         set({
           orders: [order, ...s.orders],
           cart: [],
           wallet: o.payment === 'cuzdan' ? s.wallet - o.total : s.wallet,
           pearls: s.pearls - o.pearlsUsed + earned,
           activity: [
-            { id: uid('A'), at: now, title: `Sipariş #${order.id.slice(-5)}`, pearls: earned - o.pearlsUsed, amount: -o.total },
+            {
+              id: uid('A'),
+              at: now,
+              title: `Sipariş #${order.id.slice(-5)}${paidNow ? '' : ' gönderildi'}`,
+              pearls: paidNow ? earned - o.pearlsUsed : undefined,
+              amount: paidNow ? -o.total : undefined,
+            },
             ...s.activity,
           ],
         });
         return order;
+      },
+      setOrderStatus: (id, status) => set((s) => ({ orders: s.orders.map((o) => (o.id === id ? { ...o, status } : o)) })),
+      markPaid: (id) => {
+        const s = get();
+        const order = s.orders.find((o) => o.id === id);
+        if (!order || order.paid) return;
+        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const earned = Math.floor(order.subtotal * current.rate);
+        const now = new Date().toISOString();
+        // DEMO: sipariş bu cihazdaki üyeye aitse İnci doğrudan yüklenir; sunucu modunda üyenin hesabına yazılır
+        const mine = order.memberNo && order.memberNo === s.user?.memberNo;
+        set({
+          orders: s.orders.map((o) => (o.id === id ? { ...o, paid: true, paidAt: now, pearlsEarned: earned, status: 'teslim' } : o)),
+          pearls: mine ? s.pearls + earned : s.pearls,
+          activity: mine
+            ? [{ id: uid('A'), at: now, title: `Sipariş #${id.slice(-5)} ödendi`, pearls: earned, amount: -order.subtotal }, ...s.activity]
+            : s.activity,
+          staffLog: [
+            { id: uid('L'), at: now, memberNo: order.memberNo ?? '-', amount: order.subtotal, pearls: earned, source: 'siparis' },
+            ...s.staffLog,
+          ],
+        });
+      },
+      creditPearls: (memberNo, amount, source) => {
+        const s = get();
+        if (!(amount > 0) || amount > 100000) return { ok: false, reason: 'Geçerli bir hesap tutarı girin.' };
+        if (!s.user || s.user.memberNo !== memberNo) {
+          // Başka telefondaki üye: bakiyesi sunucuda tutulur
+          return { ok: false, reason: 'Bu üyeye puan yüklemek için sunucu bağlantısı gerekli (demo modunda yalnızca bu cihazdaki üye).' };
+        }
+        const now = Date.now();
+        const recent = s.staffLog.find((l) => l.memberNo === memberNo && l.amount === amount && now - new Date(l.at).getTime() < 10 * 60000);
+        if (recent) return { ok: false, reason: 'Aynı tutar bu üyeye son 10 dakikada zaten yüklendi.' };
+        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const earned = Math.floor(amount * current.rate);
+        const at = new Date(now).toISOString();
+        set({
+          pearls: s.pearls + earned,
+          activity: [{ id: uid('A'), at, title: 'Restoranda harcama', pearls: earned, amount: -amount }, ...s.activity],
+          staffLog: [{ id: uid('L'), at, memberNo, amount, pearls: earned, source }, ...s.staffLog],
+        });
+        return { ok: true, pearls: earned };
       },
       advanceOrder: (id) =>
         set((s) => ({
@@ -307,16 +386,23 @@ export const useStore = create<State>()(
     {
       name: 'deniz-kapisi',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 2,
+      version: 3,
       // v1 → v2: yearSpend kaldırıldı (artık siparişlerden hesaplanıyor), kupon/favori eklendi
       migrate: (persisted, version) => {
         const old = (persisted ?? {}) as Record<string, unknown>;
         if (version < 2) {
           delete old.yearSpend;
           const user = old.user as User | null | undefined;
-          return { ...initialData, ...old, coupons: [], favorites: [], welcomed: user ? [user.phone] : [] } as unknown as State;
+          Object.assign(old, { coupons: [], favorites: [], welcomed: user ? [user.phone] : [] });
         }
-        return old as unknown as State;
+        if (version < 3) {
+          // v3: siparişlerde ödeme durumu, kullanıcıda QR anahtarı, personel kaydı
+          const user = old.user as User | null | undefined;
+          if (user && !user.secret) user.secret = newSecret();
+          old.orders = ((old.orders as Order[] | undefined) ?? []).map((o) => ({ ...o, paid: o.paid ?? true }));
+          old.staffLog = [];
+        }
+        return { ...initialData, ...old } as unknown as State;
       },
     },
   ),

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Card, Divider, Row, Screen, SectionTitle, T } from '../../components/ui';
-import { restaurant } from '../../config/restaurant';
+import { ordering, restaurant } from '../../config/restaurant';
 import { formatPrice } from '../../data/menu';
 import { useStore, useTier } from '../../store';
 import { colors, fonts, space } from '../../theme';
@@ -33,7 +33,7 @@ export default function Account() {
           <Row
             key={o.id}
             icon="receipt"
-            title={`${o.mode === 'masa' ? `Masa ${o.table}` : 'Gel-Al'} · ${formatPrice(o.total)}`}
+            title={`${o.mode === 'masa' ? `${ordering.areaName} ${o.table}` : 'Gel-Al'} · ${formatPrice(o.total)}${o.paid ? '' : ' · ödenmedi'}`}
             subtitle={`${new Date(o.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} · ${o.lines.length} ürün`}
             onPress={() => router.push({ pathname: '/order/[id]', params: { id: o.id } })}
           />
@@ -80,11 +80,15 @@ export default function Account() {
       <T v="small" style={{ textAlign: 'center', marginTop: space.xl }}>
         Deniz Kapısı · Since {restaurant.founded} · v1.0.0
       </T>
+      <Text onPress={() => router.push('/panel')} style={styles.staff}>
+        Personel girişi
+      </Text>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.seaDeep, alignItems: 'center', justifyContent: 'center' },
+  staff: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: space.md, padding: space.sm },
   avatarText: { fontFamily: fonts.display, fontSize: 26, color: colors.white },
 });

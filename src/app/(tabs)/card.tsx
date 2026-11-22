@@ -5,6 +5,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { Icon } from '../../components/Icon';
 import { MemberCard } from '../../components/MemberCard';
 import { useNow } from '../../hooks/useNow';
+import { CODE_WINDOW_MS, makeMemberCode, windowOf } from '../../services/memberCode';
 import { Card, Chip, SectionTitle, Screen, T, tap } from '../../components/ui';
 import { rewards, tiers, topUpOptions } from '../../config/restaurant';
 import { formatPrice } from '../../data/menu';
@@ -21,18 +22,23 @@ function notify(title: string, msg: string) {
  * Kasada okutulan QR kodu her 30 saniyede yenilenir; ekran görüntüsüyle
  * başkasının İnci kazanmasını zorlaştırır. Gerçekte kod sunucuda imzalanmalı (TOTP).
  */
-function useRotatingCode(memberNo: string) {
-  const [tick, setTick] = useState(() => Math.floor(Date.now() / 30000));
+function useRotatingCode(memberNo: string, secret: string) {
+  const now = useNow(5000);
+  const win = windowOf(now);
+  const [code, setCode] = useState(memberNo);
   useEffect(() => {
-    const t = setInterval(() => setTick(Math.floor(Date.now() / 30000)), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return `DK:${memberNo}:${tick.toString(36)}`;
+    let alive = true;
+    makeMemberCode(memberNo, secret, win * CODE_WINDOW_MS).then((c) => alive && setCode(c));
+    return () => {
+      alive = false;
+    };
+  }, [memberNo, secret, win]);
+  return code;
 }
 
 export default function LoyaltyCard() {
   const { user, pearls, wallet, activity, coupons, topUp, redeem } = useStore();
-  const code = useRotatingCode(user?.memberNo ?? 'MISAFIR');
+  const code = useRotatingCode(user?.memberNo ?? 'MISAFIR', user?.secret ?? '');
   const [amount, setAmount] = useState<number>(topUpOptions[1].amount);
   const [loading, setLoading] = useState(false);
   const { current } = useTier();
@@ -62,10 +68,10 @@ export default function LoyaltyCard() {
           <QRCode value={code} size={176} color={colors.seaDeep} backgroundColor={colors.surface} />
         </View>
         <T v="h3" style={{ marginTop: space.lg }}>
-          Kasada okutun
+          Hesabı öderken okutun
         </T>
         <T v="small" style={{ textAlign: 'center', marginTop: 4 }}>
-          Restoranda yaptığınız her harcamada İnci kazanın.{'\n'}Üye no: {user?.memberNo}
+          Garsonunuza ya da kasaya gösterin; hesap tutarınız kadar İnci yüklenir.{'\n'}Kod 30 saniyede bir yenilenir · Üye no: {user?.memberNo}
         </T>
       </Card>
 

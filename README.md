@@ -57,4 +57,6 @@ Fotoğraf eşleştirmeleri ve elle eklenen ürünler (çocuk menüsü, günün b
 ## Durum
 
 Arayüz ve akışların tamamı çalışıyor. **Demo** olan kısımlar: SMS doğrulama, kart ödemesi ve verilerin sunucuya kaydı.
+**Plaj pilotu** (şezlongdan sipariş, personel paneli, QR ile puan) için: [docs/PLAJ_PILOTU.md](docs/PLAJ_PILOTU.md). Şezlong QR kartları: `node scripts/sezlong-qr.js 1 40 > sezlong-qr.html`.
+
 Yayına çıkış adımları için: [docs/YOL_HARITASI.md](docs/YOL_HARITASI.md). Rakip incelemesi için: [docs/RAKIP_ANALIZI.md](docs/RAKIP_ANALIZI.md).

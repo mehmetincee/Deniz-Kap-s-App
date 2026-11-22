@@ -29,6 +29,39 @@ export const serviceHours = {
 } as const;
 
 /**
+ * Masaya / şezlonga sipariş ayarları — PLAJ PİLOTU.
+ * Pilot sonrası diğer bölümler buradan açılır; kod değişikliği gerekmez.
+ */
+export const ordering = {
+  /** Sipariş alınan alan adı (arayüzde görünür). */
+  areaName: 'Şezlong',
+  /** Uygulamadan sipariş edilebilen menüler. Pilot: yalnızca öğle (plaj) menüsü ve içecekler. */
+  services: ['oglen', 'icecek'] as string[],
+  /** Plaj servisi saatleri: içecekler bu aralıkta, öğle menüsü kendi saatinde (12:00–18:00). */
+  hours: { from: '10:00', to: '19:00' },
+  /** Uygulama içi ödeme. Kapalıyken hesap ayrılırken garsona/kasaya ödenir. */
+  onlinePayment: false,
+  /** Gel-Al. Pilotta kapalı. */
+  pickup: false,
+  /**
+   * Siparişin restorana ulaşma yolu:
+   *  - 'sunucu'  : backend (Supabase) → personel paneli. Asıl hedef.
+   *  - 'whatsapp': sunucu kurulana kadar; sipariş hazır metin olarak bar WhatsApp'ına gider.
+   *  - 'demo'    : yalnızca bu cihazda saklanır (test/sunum).
+   */
+  channel: 'demo' as 'sunucu' | 'whatsapp' | 'demo',
+} as const;
+
+/**
+ * Şezlong/masa QR'larının açtığı adres. Uygulama yüklüyse uygulamayı (universal link),
+ * değilse web sürümünü açar. Alan adı yayın öncesi kurulmalı (ör. app.denizkapisi.com.tr).
+ */
+export const appLinkBase = 'https://app.denizkapisi.com.tr';
+
+/** Personel paneli PIN'i. DEMO: Gerçekte personel kendi hesabıyla sunucuya giriş yapar. */
+export const staffPin = '2580';
+
+/**
  * Sadakat programı: "İnci".
  * Her harcamada seviyeye göre İnci kazanılır; 1 İnci = 1 ₺ değerindedir.
  * Seviye, son 12 aydaki toplam harcamaya göre belirlenir.
