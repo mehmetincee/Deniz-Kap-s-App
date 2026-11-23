@@ -1,3 +1,5 @@
+import { SymbolView, type SFSymbol } from 'expo-symbols';
+import { Platform, type ColorValue } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { colors } from '../theme';
@@ -8,7 +10,7 @@ export type IconName =
   | 'gift' | 'table' | 'wallet' | 'wave' | 'cake' | 'info' | 'logout' | 'music' | 'receipt'
   | 'heart' | 'heart-filled' | 'repeat' | 'help';
 
-const paths: Record<IconName, (c: string) => React.ReactNode> = {
+const paths: Record<IconName, (c: ColorValue) => React.ReactNode> = {
   home: () => <Path d="M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9" />,
   menu: () => <Path d="M4 5.5C6.5 4 9.5 4 12 5.5 14.5 4 17.5 4 20 5.5V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0V5.5ZM12 5.5V19" />,
   card: () => (
@@ -109,24 +111,68 @@ const paths: Record<IconName, (c: string) => React.ReactNode> = {
   receipt: () => <Path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3v-17ZM9 8h6M9 12h6M9 16h3" />,
 };
 
-export function Icon({ name, size = 22, color = colors.ink, strokeWidth = 1.6 }: {
+/**
+ * [sf-symbols] iOS'ta simgeler SF Symbols'tür: sistem fontuyla aynı ağırlıkta hizalanır,
+ * Dynamic Type ve koyu modla uyumludur. [tab-bars] "Prefer filled symbols" → sekmelerde .fill.
+ * [sf-symbols › Design variants] "The outline variant works well in toolbars, lists… alongside text"
+ * → liste ve düğme içindeki simgeler outline.
+ * SF Symbols lisansı yalnızca Apple platformlarında kullanıma izin verir; Android ve web'de aynı
+ * anlamı taşıyan çizgi simgeler (aşağıdaki SVG'ler) gösterilir.
+ * En düşük iOS 16.4 → yalnızca SF Symbols 4.0 ve öncesindeki simgeler seçildi.
+ */
+export const sfName: Record<IconName, SFSymbol> = {
+  home: 'house',
+  menu: 'menucard',
+  card: 'qrcode',
+  calendar: 'calendar',
+  user: 'person.crop.circle',
+  plus: 'plus',
+  minus: 'minus',
+  close: 'xmark',
+  'chevron-right': 'chevron.right',
+  'chevron-left': 'chevron.left',
+  bag: 'bag',
+  search: 'magnifyingglass',
+  phone: 'phone',
+  pin: 'mappin.and.ellipse',
+  instagram: 'camera', // [sf-symbols] marka logoları SF Symbols'te yok; kullanılması da yasak
+  message: 'message',
+  clock: 'clock',
+  check: 'checkmark',
+  gift: 'gift',
+  table: 'table.furniture',
+  wallet: 'creditcard',
+  wave: 'beach.umbrella',
+  cake: 'birthday.cake',
+  info: 'info.circle',
+  logout: 'rectangle.portrait.and.arrow.right',
+  music: 'music.note',
+  receipt: 'doc.text',
+  heart: 'heart',
+  'heart-filled': 'heart.fill',
+  repeat: 'arrow.clockwise',
+  help: 'questionmark.circle',
+};
+
+export function Icon({
+  name,
+  size = 22,
+  color = colors.label,
+  strokeWidth = 1.6,
+  weight = 'regular',
+}: {
   name: IconName;
   size?: number;
-  color?: string;
+  color?: ColorValue;
   strokeWidth?: number;
+  /** [sf-symbols › Weights and scales] simge ağırlığı yanındaki metnin ağırlığıyla eşleşir. */
+  weight?: 'regular' | 'medium' | 'semibold' | 'bold';
 }) {
-  return (
-    <Svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+  const svg = (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       {paths[name](color)}
     </Svg>
   );
+  if (Platform.OS !== 'ios') return svg;
+  return <SymbolView name={sfName[name]} size={size} tintColor={color} weight={weight} type="monochrome" fallback={svg} />;
 }

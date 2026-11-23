@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, T } from '../components/ui';
 import { requestOtp, verifyOtp } from '../services/auth';
 import { useStore } from '../store';
-import { colors, fonts, radius, space } from '../theme';
+import { colors, font, radius, space } from '../theme';
 
 /** Karşılama + telefonla giriş (OTP). Demo kodu: 1971 */
 export default function Welcome() {
@@ -42,13 +42,13 @@ export default function Welcome() {
 
   if (step === 'intro') {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.seaDeep }}>
+      <View style={{ flex: 1, backgroundColor: colors.accent }}>
         <Image source={require('../../assets/images/hero-sea.jpg')} style={StyleSheet.absoluteFill} contentFit="cover" />
         <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(14,24,48,0.45)' }]} />
         <View style={[styles.intro, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 32 }]}>
           <Image source={require('../../assets/images/mark-white.png')} style={{ width: 72, height: 72 }} contentFit="contain" />
           <View style={{ flex: 1 }} />
-          <Text style={styles.kicker}>İÇMELER · MARMARİS · 1971</Text>
+          <Text style={styles.kicker}>İçmeler · Marmaris · 1971</Text>
           <Text style={styles.heroTitle}>Denizin kapısı,{'\n'}sofranın başı.</Text>
           <Text style={styles.heroBody}>
             Masanızdan sipariş verin, hesabı telefondan ödeyin, her ziyarette İnci biriktirin.
@@ -60,7 +60,7 @@ export default function Welcome() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: colors.sand }}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: colors.groupedBackground }}>
       <View style={{ flex: 1, padding: space.xl, paddingTop: insets.top + 32 }}>
         <Image source={require('../../assets/images/mark.png')} style={{ width: 48, height: 48 }} contentFit="contain" />
         {step === 'phone' ? (
@@ -71,7 +71,7 @@ export default function Welcome() {
             <T style={{ marginTop: space.sm }}>Size nasıl hitap edelim? Telefon numaranız kartınız olacak.</T>
             <TextInput
               placeholder="Adınız"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={colors.placeholder}
               value={name}
               onChangeText={setName}
               style={styles.input}
@@ -82,12 +82,12 @@ export default function Welcome() {
               <Text style={styles.prefix}>+90</Text>
               <TextInput
                 placeholder="5XX XXX XX XX"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={colors.placeholder}
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
                 maxLength={17}
-                style={{ flex: 1, fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.ink, height: 54 }}
+                style={{ flex: 1, ...font.medium, fontSize: 16, color: colors.label, height: 54 }}
                 autoComplete="tel"
                 textContentType="telephoneNumber"
               />
@@ -109,7 +109,7 @@ export default function Welcome() {
               onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 4))}
               keyboardType="number-pad"
               placeholder="• • • •"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={colors.placeholder}
               style={[styles.input, styles.code]}
               autoFocus
               textContentType="oneTimeCode"
@@ -127,22 +127,20 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   intro: { flex: 1, paddingHorizontal: space.xl },
-  kicker: { fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 2.4, color: 'rgba(255,255,255,0.8)' },
-  heroTitle: { fontFamily: fonts.display, fontSize: 44, lineHeight: 48, color: colors.white, marginTop: space.md },
-  heroBody: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: 'rgba(255,255,255,0.88)', marginTop: space.md },
+  kicker: { ...font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.85)' },
+  heroTitle: { ...font.serifBold, fontSize: 34, lineHeight: 41, color: colors.onAccent, marginTop: space.md },
+  heroBody: { ...font.regular, fontSize: 15, lineHeight: 20, color: 'rgba(255,255,255,0.88)', marginTop: space.md },
   input: {
     marginTop: space.lg,
     height: 56,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.secondaryGroupedBackground,
     paddingHorizontal: space.lg,
-    fontFamily: fonts.bodyMedium,
+    ...font.medium,
     fontSize: 16,
-    color: colors.ink,
+    color: colors.label,
   },
-  prefix: { fontFamily: fonts.bodySemi, fontSize: 16, color: colors.ink, marginRight: space.sm },
-  code: { textAlign: 'center', fontSize: 26, letterSpacing: 14, fontFamily: fonts.bodySemi },
-  error: { fontFamily: fonts.bodyMedium, color: colors.coral, marginTop: space.md },
+  prefix: { ...font.semibold, fontSize: 16, color: colors.label, marginRight: space.sm },
+  code: { textAlign: 'center', fontSize: 28, letterSpacing: 14, ...font.semibold },
+  error: { ...font.medium, color: colors.red, marginTop: space.md },
 });

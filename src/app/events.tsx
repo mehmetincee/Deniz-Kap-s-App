@@ -6,7 +6,7 @@ import { Linking, StyleSheet, TextInput, View } from 'react-native';
 
 import { Button, Card, Chip, IconButton, Screen, Stepper, T } from '../components/ui';
 import { restaurant } from '../config/restaurant';
-import { colors, fonts, radius, space } from '../theme';
+import { colors, font, radius, space } from '../theme';
 
 const types = ['Pasta siparişi', 'Doğum günü', 'Düğün / nişan', 'Kurumsal etkinlik', 'Baby shower', 'Diğer'];
 
@@ -30,7 +30,7 @@ export default function Events() {
     <Screen padded={false} bottomInset={40} style={{ paddingTop: 0 }}>
       <View>
         <Image source={require('../../assets/images/terrace.jpg')} style={styles.hero} contentFit="cover" />
-        <IconButton name="chevron-left" label="Geri" onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
+        <IconButton name="chevron-left" label="Geri" overMedia onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
       </View>
       <View style={{ padding: space.xl }}>
         <T v="label">Etkinlikler & Özel Davetler</T>
@@ -42,7 +42,7 @@ export default function Events() {
           desteğiyle davetinizi birlikte planlayalım.
         </T>
 
-        <Card style={{ marginTop: space.xl, backgroundColor: colors.foam }}>
+        <Card style={{ marginTop: space.xl }}>
           <T v="h3">Pasta siparişi</T>
           <T style={{ marginTop: 4 }}>Etkinlik tarihinden en az 1 gün önce, saat 11:00’e kadar sipariş vermeniz yeterli.</T>
         </Card>
@@ -59,7 +59,7 @@ export default function Events() {
         <T v="label" style={{ marginTop: space.xl }}>
           Tarih
         </T>
-        <TextInput value={date} onChangeText={setDate} placeholder="Ör. 14 Haziran, akşam" placeholderTextColor={colors.muted} style={styles.input} />
+        <TextInput value={date} onChangeText={setDate} placeholder="Ör. 14 Haziran, akşam" placeholderTextColor={colors.placeholder} style={styles.input} />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.xl }}>
           <T v="label">Kişi sayısı</T>
@@ -70,7 +70,7 @@ export default function Events() {
           value={note}
           onChangeText={setNote}
           placeholder="Pasta tercihi, menü, dekor fikirleri…"
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={colors.placeholder}
           style={[styles.input, { minHeight: 90, textAlignVertical: 'top', paddingTop: space.md }]}
           multiline
         />
@@ -90,12 +90,10 @@ const styles = StyleSheet.create({
     marginTop: space.sm,
     minHeight: 52,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.secondaryGroupedBackground,
     paddingHorizontal: space.lg,
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: colors.ink,
+    ...font.regular,
+    fontSize: 15,
+    color: colors.label,
   },
 });

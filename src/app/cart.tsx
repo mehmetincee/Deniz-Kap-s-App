@@ -1,15 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Linking, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon, type IconName } from '../components/Icon';
-import { Button, Chip, Divider, IconButton, Stepper, T, tap } from '../components/ui';
+import { Icon } from '../components/Icon';
+import { Button, Chip, IconButton, ListSection, Material, Row, Segmented, Stepper, T, tap } from '../components/ui';
 import { ordering, restaurant, serviceHours } from '../config/restaurant';
 import { formatPrice, orderBlockReason } from '../data/menu';
 import { payWithCard } from '../services/payment';
 import { cartTotal, useStore, useTier, type PaymentMethod } from '../store';
-import { colors, fonts, radius, space } from '../theme';
+import { colors, font, space, textStyle } from '../theme';
 
 const tipOptions = [0, 0.05, 0.1, 0.15];
 
@@ -100,164 +100,145 @@ export default function Cart() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.sand }}>
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: Platform.OS === 'ios' ? space.lg : insets.top + space.md,
-          },
-        ]}
-      >
-        <T v="h1" style={{ flex: 1 }}>
-          Sepet
-        </T>
+    <View style={{ flex: 1, backgroundColor: colors.groupedBackground }}>
+      {/* [sheets] tek görünümlü sayfada kapatma solda; [toolbars] standart Kapat simgesi, metin yok; başlık < 15 karakter */}
+      <View style={[styles.header, { paddingTop: Platform.OS === 'ios' ? space.md : insets.top + space.sm }]}>
         <IconButton name="close" label="Kapat" onPress={() => router.back()} />
+        <Text style={styles.headerTitle} accessibilityRole="header">
+          Sepet
+        </Text>
+        <View style={{ width: 44 }} />
       </View>
 
       {cart.length === 0 ? (
-        <View style={{ padding: space.xl }}>
-          <T>Sepetiniz boş. Menüden bir lezzet seçerek başlayın.</T>
+        <View style={{ padding: space.xl, alignItems: 'center' }}>
+          <T v="secondary" style={{ textAlign: 'center' }}>
+            Sepetiniz boş. Menüden bir lezzet seçerek başlayın.
+          </T>
           <Button title="Menüye git" variant="secondary" onPress={() => router.replace('/menu')} style={{ marginTop: space.xl }} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ padding: space.xl, paddingBottom: 160 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: 170 }} keyboardShouldPersistTaps="handled">
           {ordering.pickup && (
-            <View style={[styles.segment, { marginBottom: space.lg }]}>
-              <Segment icon="table" label="Masaya" active={orderMode === 'masa'} onPress={() => setOrderContext({ orderMode: 'masa' })} />
-              <Segment icon="bag" label="Gel-Al" active={orderMode === 'gelal'} onPress={() => setOrderContext({ orderMode: 'gelal' })} />
-            </View>
+            <Segmented
+              style={{ marginTop: space.md }}
+              value={orderMode}
+              onChange={(v) => setOrderContext({ orderMode: v })}
+              options={[
+                { value: 'masa', label: 'Masaya', icon: 'table' },
+                { value: 'gelal', label: 'Gel-Al', icon: 'bag' },
+              ]}
+            />
           )}
 
           {orderMode === 'masa' ? (
-            <View>
-              <T v="label">{area} numarası</T>
+            <ListSection header={`${area} numarası`} footer={`${area}unuzdaki QR okutulduysa numara kendiliğinden gelir.`}>
               <TextInput
                 value={table}
-                onChangeText={(v) =>
-                  setOrderContext({
-                    table: v.toLocaleUpperCase('tr-TR').slice(0, 8),
-                  })
-                }
+                onChangeText={(v) => setOrderContext({ table: v.toLocaleUpperCase('tr-TR').slice(0, 8) })}
                 placeholder={`${area}taki QR'da yazan numara, ör. Ş12`}
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={colors.placeholder}
                 style={styles.input}
                 autoCapitalize="characters"
+                accessibilityLabel={`${area} numarası`}
               />
-            </View>
+            </ListSection>
           ) : (
-            <View>
-              <T v="label">Teslim saati</T>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm, marginTop: space.sm }}>
-                {slots.map((s) => (
-                  <Chip key={s} label={s} active={s === slot} onPress={() => setSlot(s)} />
+            <View style={{ marginTop: space.xl }}>
+              <Text style={styles.sectionHeader}>Teslim saati</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm, paddingVertical: 5 }}>
+                {slots.map((x) => (
+                  <Chip key={x} label={x} active={x === slot} onPress={() => setSlot(x)} />
                 ))}
-                {slots.length === 0 && <T>Bugün için uygun teslim saati kalmadı.</T>}
+                {slots.length === 0 && <T v="secondary">Bugün için uygun teslim saati kalmadı.</T>}
               </ScrollView>
             </View>
           )}
 
-          <View style={{ marginTop: space.xl }}>
-            {cart.map((l) => (
-              <View key={l.key} style={styles.line}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.lineName}>{l.name}</Text>
-                  {(l.optionName || l.note) && <T v="small">{[l.optionName, l.note].filter(Boolean).join(' · ')}</T>}
-                  <Text style={styles.linePrice}>{formatPrice(l.unitPrice * l.qty)}</Text>
-                  {!!orderBlockReason(l.productId) && <Text style={styles.lineWarn}>{orderBlockReason(l.productId)}</Text>}
+          {/* [lists-and-tables] sipariş satırları gruplanmış liste */}
+          <ListSection header="Siparişiniz">
+            {cart.map((l) => {
+              const reason = orderBlockReason(l.productId);
+              return (
+                <View key={l.key} style={styles.line}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.lineName}>{l.name}</Text>
+                    {(l.optionName || l.note) && <Text style={styles.lineMeta}>{[l.optionName, l.note].filter(Boolean).join(' · ')}</Text>}
+                    <Text style={styles.linePrice}>{formatPrice(l.unitPrice * l.qty)}</Text>
+                    {!!reason && <Text style={styles.lineWarn}>{reason}</Text>}
+                  </View>
+                  <Stepper small value={l.qty} onChange={(n) => setQty(l.key, n)} />
                 </View>
-                <Stepper small value={l.qty} onChange={(n) => setQty(l.key, n)} />
-              </View>
-            ))}
-          </View>
+              );
+            })}
+          </ListSection>
 
           {online && (
             <>
               <View style={{ marginTop: space.xl }}>
-                <T v="label">Servis ekibine bahşiş</T>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    gap: space.sm,
-                    marginTop: space.sm,
-                  }}
-                >
-                  {tipOptions.map((t) => (
-                    <Chip
-                      key={t}
-                      label={t === 0 ? 'Yok' : `%${t * 100}`}
-                      active={tip === t}
-                      onPress={() => setTip(t)}
-                      style={{ flex: 1, alignItems: 'center' }}
-                    />
-                  ))}
-                </View>
+                <Text style={styles.sectionHeader}>Servis ekibine bahşiş</Text>
+                <Segmented value={tip} onChange={setTip} options={tipOptions.map((t) => ({ value: t, label: t === 0 ? 'Yok' : `%${t * 100}` }))} />
               </View>
 
-              <View style={styles.pearlRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.lineName}>İnci kullan</Text>
-                  <T v="small">
-                    {pearls.toLocaleString('tr-TR')} İnci = {formatPrice(pearls)}
-                  </T>
-                </View>
-                <Switch
-                  value={usePearls}
-                  onValueChange={(v) => (tap(), setUsePearls(v))}
-                  disabled={pearls === 0}
-                  trackColor={{ true: colors.sea, false: colors.line }}
-                  thumbColor={colors.white}
+              <ListSection footer={`${pearls.toLocaleString('tr-TR')} İnci = ${formatPrice(pearls)}`}>
+                <Row
+                  icon="gift"
+                  iconColor={colors.indigo}
+                  title="İnci kullan"
+                  right={
+                    // [toggles] "The default green color tends to work well in most cases"
+                    <Switch value={usePearls} onValueChange={(v) => (tap(), setUsePearls(v))} disabled={pearls === 0} trackColor={{ true: colors.green }} />
+                  }
                 />
-              </View>
+              </ListSection>
 
-              <View style={{ marginTop: space.xl }}>
-                <T v="label">Ödeme yöntemi</T>
-                <PayOption
-                  icon="card"
-                  title="Kredi / banka kartı"
-                  sub="3D Secure ile güvenli ödeme"
-                  active={method === 'kart'}
-                  onPress={() => setMethod('kart')}
-                />
-                <PayOption
+              {/* [lists-and-tables] seçenek listesi: seçili satırda onay işareti */}
+              <ListSection header="Ödeme yöntemi">
+                <Row
                   icon="wallet"
-                  title="Deniz Kapısı Cüzdan"
-                  sub={wallet >= total ? `Bakiye ${formatPrice(wallet)}` : `Bakiye yetersiz (${formatPrice(wallet)})`}
-                  active={method === 'cuzdan'}
-                  onPress={() => setMethod('cuzdan')}
+                  iconColor={colors.accent}
+                  title="Kredi / banka kartı"
+                  subtitle="3D Secure ile güvenli ödeme"
+                  onPress={() => setMethod('kart')}
+                  right={method === 'kart' ? <Icon name="check" size={17} color={colors.accent} weight="semibold" /> : <View />}
                 />
-              </View>
+                <Row
+                  icon="card"
+                  iconColor={colors.indigo}
+                  title="Deniz Kapısı Cüzdan"
+                  subtitle={wallet >= total ? `Bakiye ${formatPrice(wallet)}` : `Bakiye yetersiz (${formatPrice(wallet)})`}
+                  onPress={() => setMethod('cuzdan')}
+                  right={method === 'cuzdan' ? <Icon name="check" size={17} color={colors.accent} weight="semibold" /> : <View />}
+                />
+              </ListSection>
             </>
           )}
 
           {!online && (
-            <View style={styles.payLater}>
-              <Icon name="receipt" size={20} color={colors.sea} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.lineName}>Ödeme hesapta</Text>
-                <T v="small">
-                  Siparişiniz {area.toLocaleLowerCase('tr-TR')}unuza getirilir. Hesabı ayrılırken garsonumuza ya da kasaya ödersiniz; ödeme
-                  alındığında İnci&apos;leriniz kartınıza otomatik yüklenir.
-                </T>
-              </View>
-            </View>
+            <ListSection>
+              <Row icon="receipt" iconColor={colors.teal} title="Ödeme hesapta" subtitle="Ayrılırken garsonumuza ya da kasaya ödersiniz." />
+            </ListSection>
           )}
 
-          <View style={styles.summary}>
+          <ListSection
+            footer={
+              online
+                ? `Bu siparişten ${willEarn} İnci kazanacaksınız.`
+                : `Ödeme alındığında yaklaşık ${willEarn} İnci kartınıza otomatik yüklenir.`
+            }
+          >
             <SumRow label="Ara toplam" value={formatPrice(subtotal)} />
             {tipAmount > 0 && <SumRow label="Bahşiş" value={formatPrice(tipAmount)} />}
             {pearlsUsed > 0 && <SumRow label="İnci indirimi" value={`−${formatPrice(pearlsUsed)}`} />}
-            <Divider style={{ marginVertical: space.sm }} />
             <SumRow label="Toplam" value={formatPrice(total)} bold />
-            <T v="small" style={{ marginTop: space.sm, color: colors.sea }}>
-              {online ? `Bu siparişten ${willEarn} İnci kazanacaksınız.` : `Ödeme alındığında yaklaşık ${willEarn} İnci kazanacaksınız.`}
-            </T>
-          </View>
+          </ListSection>
         </ScrollView>
       )}
 
       {cart.length > 0 && (
-        <View style={[styles.footer, { paddingBottom: insets.bottom + space.lg }]}>
+        // Alt eylem alanı: kontrol katmanı [materials], tek belirgin düğme [buttons]
+        <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+          <Material style={[StyleSheet.absoluteFill, { borderRadius: 0 }]} />
           <Button
             title={online ? `Öde · ${formatPrice(total)}` : `Siparişi gönder · ${formatPrice(total)}`}
             onPress={pay}
@@ -265,23 +246,9 @@ export default function Cart() {
             disabled={!canPay}
           />
           {blocked.length > 0 ? (
-            <T
-              v="small"
-              style={{
-                textAlign: 'center',
-                marginTop: space.sm,
-                color: colors.coral,
-              }}
-            >
-              Şu an hazırlanamayan ürünleri sepetten çıkarın.
-            </T>
+            <Text style={[styles.hint, { color: colors.red }]}>Şu an hazırlanamayan ürünleri sepetten çıkarın.</Text>
           ) : (
-            orderMode === 'masa' &&
-            !table.trim() && (
-              <T v="small" style={{ textAlign: 'center', marginTop: space.sm }}>
-                Devam etmek için {area.toLocaleLowerCase('tr-TR')} numarasını girin.
-              </T>
-            )
+            orderMode === 'masa' && !table.trim() && <Text style={styles.hint}>Devam etmek için {area.toLocaleLowerCase('tr-TR')} numarasını girin.</Text>
           )}
         </View>
       )}
@@ -289,178 +256,28 @@ export default function Cart() {
   );
 }
 
-function Segment({ icon, label, active, onPress }: { icon: IconName; label: string; active: boolean; onPress: () => void }) {
-  return (
-    <Pressable onPress={() => (tap(), onPress())} style={[styles.segmentItem, active && styles.segmentActive]}>
-      <Icon name={icon} size={18} color={active ? colors.white : colors.ink} />
-      <Text style={[styles.segmentText, active && { color: colors.white }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function PayOption({
-  icon,
-  title,
-  sub,
-  active,
-  onPress,
-}: {
-  icon: IconName;
-  title: string;
-  sub: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={() => (tap(), onPress())} style={[styles.pay, active && { borderColor: colors.seaDeep }]}>
-      <Icon name={icon} size={20} color={colors.sea} />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.lineName}>{title}</Text>
-        <T v="small">{sub}</T>
-      </View>
-      <View style={[styles.radio, active && { borderColor: colors.seaDeep }]}>{active && <View style={styles.radioDot} />}</View>
-    </Pressable>
-  );
-}
-
 function SumRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 3,
-      }}
-    >
-      <T
-        style={
-          bold && {
-            fontFamily: fonts.bodySemi,
-            color: colors.ink,
-            fontSize: 16,
-          }
-        }
-      >
-        {label}
-      </T>
-      <T style={[{ color: colors.ink }, bold && { fontFamily: fonts.bodySemi, fontSize: 16 }]}>{value}</T>
+    <View style={styles.sumRow}>
+      <Text style={[styles.sumLabel, bold && { ...font.semibold }]}>{label}</Text>
+      <Text style={[styles.sumValue, bold && { ...font.semibold, color: colors.label }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: space.xl,
-    paddingBottom: space.sm,
-  },
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: colors.sandDeep,
-    borderRadius: radius.pill,
-    padding: 4,
-  },
-  segmentItem: {
-    flex: 1,
-    height: 44,
-    borderRadius: radius.pill,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  segmentActive: { backgroundColor: colors.seaDeep },
-  segmentText: { fontFamily: fonts.bodySemi, fontSize: 14, color: colors.ink },
-  input: {
-    marginTop: space.sm,
-    height: 52,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
-    paddingHorizontal: space.lg,
-    fontFamily: fonts.bodyMedium,
-    fontSize: 15,
-    color: colors.ink,
-  },
-  line: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: space.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-  },
-  lineName: { fontFamily: fonts.bodySemi, fontSize: 14.5, color: colors.ink },
-  payLater: {
-    flexDirection: 'row',
-    gap: space.md,
-    marginTop: space.xl,
-    padding: space.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.foam,
-  },
-  lineWarn: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    color: colors.coral,
-    marginTop: 4,
-  },
-  linePrice: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 13,
-    color: colors.inkSoft,
-    marginTop: 4,
-  },
-  pearlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: space.xl,
-    padding: space.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.foam,
-  },
-  pay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    marginTop: space.sm,
-    padding: space.lg,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
-  },
-  radio: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1.5,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: colors.seaDeep,
-  },
-  summary: {
-    marginTop: space.xl,
-    padding: space.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-  },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-    backgroundColor: colors.sand,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
-  },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingBottom: space.sm },
+  headerTitle: { flex: 1, textAlign: 'center', ...font.semibold, ...textStyle.headline, color: colors.label },
+  sectionHeader: { ...font.regular, ...textStyle.footnote, color: colors.secondaryLabel, marginHorizontal: space.lg, marginBottom: 7 },
+  input: { minHeight: 48, paddingHorizontal: space.lg, ...font.regular, ...textStyle.body, color: colors.label },
+  line: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingVertical: space.md },
+  lineName: { ...font.regular, ...textStyle.body, color: colors.label },
+  lineMeta: { ...font.regular, ...textStyle.footnote, color: colors.secondaryLabel, marginTop: 1 },
+  linePrice: { ...font.regular, ...textStyle.subhead, color: colors.secondaryLabel, marginTop: 2 },
+  lineWarn: { ...font.regular, ...textStyle.footnote, color: colors.red, marginTop: 4 },
+  sumRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 44, paddingHorizontal: space.lg },
+  sumLabel: { ...font.regular, ...textStyle.body, color: colors.label },
+  sumValue: { ...font.regular, ...textStyle.body, color: colors.secondaryLabel },
+  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.lg, paddingTop: space.md, overflow: 'hidden' },
+  hint: { ...font.regular, ...textStyle.footnote, color: colors.secondaryLabel, textAlign: 'center', marginTop: space.sm },
 });

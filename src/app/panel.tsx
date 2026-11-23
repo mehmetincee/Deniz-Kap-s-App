@@ -1,17 +1,15 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type ColorValue } from 'react-native';
 
 import { Icon } from '../components/Icon';
-import { Button, Card, IconButton, T, tap } from '../components/ui';
+import { Button, Card, Segmented, T } from '../components/ui';
 import { ordering, staffPin } from '../config/restaurant';
 import { formatPrice } from '../data/menu';
 import { useNow } from '../hooks/useNow';
 import { parseMemberCode, verifyMemberCode } from '../services/memberCode';
 import { liveStatus, useStore, type Order, type OrderStatus } from '../store';
-import { colors, fonts, radius, space } from '../theme';
+import { colors, font, radius, space } from '../theme';
 
 /**
  * PERSONEL PANELİ — bar/garson tableti için.
@@ -23,16 +21,14 @@ import { colors, fonts, radius, space } from '../theme';
  * canlı bağlantı için sunucu (Supabase) gerekir — bkz. docs/PLAJ_PILOTU.md.
  */
 export default function StaffPanel() {
-  const insets = useSafeAreaInsets();
   const [unlocked, setUnlocked] = useState(false);
   const [pin, setPin] = useState('');
   const [tab, setTab] = useState<'siparis' | 'puan'>('siparis');
 
   if (!unlocked) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + space.lg }]}>
-        <Header title="Personel girişi" />
-        <T style={{ marginTop: space.md }}>Panel yalnızca restoran ekibi içindir.</T>
+      <View style={[styles.root, { paddingTop: space.md }]}>
+        <T v="secondary">Panel yalnızca restoran ekibi içindir.</T>
         <TextInput
           value={pin}
           onChangeText={(v) => {
@@ -41,7 +37,7 @@ export default function StaffPanel() {
             if (clean === staffPin) setUnlocked(true);
           }}
           placeholder="PIN"
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={colors.placeholder}
           keyboardType="number-pad"
           secureTextEntry
           style={[styles.input, styles.pin]}
@@ -53,43 +49,28 @@ export default function StaffPanel() {
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + space.lg }]}>
-      <Header title="Personel paneli" />
-      <View style={styles.segment}>
-        {(
-          [
-            ['siparis', `${ordering.areaName} siparişleri`],
-            ['puan', 'Puan yükle'],
-          ] as const
-        ).map(([id, label]) => (
-          <Pressable key={id} onPress={() => (tap(), setTab(id))} style={[styles.segItem, tab === id && styles.segActive]}>
-            <Text style={[styles.segText, tab === id && { color: colors.white }]}>{label}</Text>
-          </Pressable>
-        ))}
-      </View>
+    <View style={[styles.root, { paddingTop: space.md }]}>
+      {/* [segmented-controls › iOS] "switch between closely related subviews" */}
+      <Segmented
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'siparis', label: `${ordering.areaName} siparişleri` },
+          { value: 'puan', label: 'Puan yükle' },
+        ]}
+      />
       {tab === 'siparis' ? <OrdersBoard /> : <PointsDesk />}
-    </View>
-  );
-}
-
-function Header({ title }: { title: string }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <T v="h1" style={{ flex: 1 }}>
-        {title}
-      </T>
-      <IconButton name="close" label="Kapat" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
     </View>
   );
 }
 
 /* ---------------------------- Siparişler ---------------------------- */
 
-const statusMeta: Record<OrderStatus, { label: string; next?: OrderStatus; action?: string; color: string }> = {
-  alindi: { label: 'Yeni', next: 'hazirlaniyor', action: 'Hazırlamaya başla', color: colors.coral },
-  hazirlaniyor: { label: 'Hazırlanıyor', next: 'hazir', action: 'Hazır', color: '#C98A1B' },
-  hazir: { label: 'Hazır', next: 'teslim', action: 'Teslim edildi', color: colors.sky },
-  teslim: { label: 'Teslim edildi', color: colors.success },
+const statusMeta: Record<OrderStatus, { label: string; next?: OrderStatus; action?: string; color: ColorValue }> = {
+  alindi: { label: 'Yeni', next: 'hazirlaniyor', action: 'Hazırlamaya başla', color: colors.red },
+  hazirlaniyor: { label: 'Hazırlanıyor', next: 'hazir', action: 'Hazır', color: colors.orange },
+  hazir: { label: 'Hazır', next: 'teslim', action: 'Teslim edildi', color: colors.teal },
+  teslim: { label: 'Teslim edildi', color: colors.green },
 };
 
 function OrdersBoard() {
@@ -141,7 +122,7 @@ function OrdersBoard() {
             <T style={{ flex: 1 }}>
               #{o.id.slice(-5)} · {o.customerName ?? 'Misafir'}
             </T>
-            <T style={{ color: colors.ink }}>{formatPrice(o.subtotal)}</T>
+            <T style={{ color: colors.label }}>{formatPrice(o.subtotal)}</T>
           </View>
         ))}
     </ScrollView>
@@ -194,7 +175,7 @@ function OrderCard({ order, now, onStatus, onPaid }: { order: Order; now: number
       {!order.paid &&
         (confirmPay ? (
           <View style={styles.confirm}>
-            <T style={{ flex: 1, color: colors.ink }}>{formatPrice(order.subtotal)} tahsil edildi mi? İnci misafire yüklenecek.</T>
+            <T style={{ flex: 1, color: colors.label }}>{formatPrice(order.subtotal)} tahsil edildi mi? İnci misafire yüklenecek.</T>
             <Button title="Vazgeç" variant="ghost" onPress={() => setConfirmPay(false)} style={styles.smallBtn} />
             <Button title="Evet" onPress={onPaid} style={styles.smallBtn} />
           </View>
@@ -259,7 +240,7 @@ function PointsDesk() {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
       <T style={{ marginTop: space.lg }}>
-        Misafir hesabı öderken <Text style={{ fontFamily: fonts.bodySemi }}>Kartım</Text> ekranındaki QR&apos;ı gösterir. Okutun, ödenen
+        Misafir hesabı öderken <Text style={{ ...font.semibold }}>Kartım</Text> ekranındaki QR&apos;ı gösterir. Okutun, ödenen
         tutarı girin; İnci seviyesine göre (%3–%7) otomatik hesaplanır.
       </T>
 
@@ -298,12 +279,12 @@ function PointsDesk() {
         value={codeText}
         onChangeText={setCodeText}
         placeholder="Okutulan kod ya da DK12345678"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={colors.placeholder}
         autoCapitalize="characters"
         style={styles.input}
       />
       {!!codeText && (
-        <T v="small" style={{ marginTop: 6, color: parsed ? colors.success : colors.coral }}>
+        <T v="small" style={{ marginTop: 6, color: parsed ? colors.green : colors.red }}>
           {!parsed ? 'Kod tanınmadı.' : 'manual' in parsed ? `Üye ${parsed.memberNo} (elle girildi, kayda geçer)` : `Üye ${parsed.memberNo} · QR okundu`}
         </T>
       )}
@@ -311,14 +292,14 @@ function PointsDesk() {
       <T v="label" style={{ marginTop: space.lg }}>
         Ödenen hesap tutarı (₺)
       </T>
-      <TextInput value={amount} onChangeText={setAmount} placeholder="Ör. 1450" placeholderTextColor={colors.muted} keyboardType="decimal-pad" style={styles.input} />
+      <TextInput value={amount} onChangeText={setAmount} placeholder="Ör. 1450" placeholderTextColor={colors.placeholder} keyboardType="decimal-pad" style={styles.input} />
 
       <Button title="İnci yükle" onPress={submit} loading={busy} disabled={!parsed || !(amountNum > 0)} style={{ marginTop: space.xl }} />
 
       {result && (
-        <View style={[styles.result, { backgroundColor: result.ok ? '#E3F2EA' : '#F8E4DF' }]}>
-          <Icon name={result.ok ? 'check' : 'info'} size={18} color={result.ok ? colors.success : colors.coral} />
-          <T style={{ flex: 1, color: colors.ink }}>{result.text}</T>
+        <View style={[styles.result, { backgroundColor: colors.secondaryGroupedBackground }]}>
+          <Icon name={result.ok ? 'check' : 'info'} size={18} color={result.ok ? colors.green : colors.red} />
+          <T style={{ flex: 1, color: colors.label }}>{result.text}</T>
         </View>
       )}
 
@@ -327,7 +308,7 @@ function PointsDesk() {
           <T v="label">Son işlemler</T>
           {staffLog.slice(0, 10).map((l) => (
             <View key={l.id} style={styles.closedRow}>
-              <T style={{ flex: 1, color: colors.ink }}>
+              <T style={{ flex: 1, color: colors.label }}>
                 {l.memberNo} · {l.source === 'qr' ? 'QR' : l.source === 'siparis' ? 'Sipariş' : 'Elle'}
               </T>
               <T>
@@ -342,54 +323,54 @@ function PointsDesk() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.sand, paddingHorizontal: space.xl },
+  root: { flex: 1, backgroundColor: colors.groupedBackground, paddingHorizontal: space.xl },
   input: {
     marginTop: space.sm,
     height: 52,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    borderColor: colors.separator,
+    backgroundColor: colors.secondaryGroupedBackground,
     paddingHorizontal: space.lg,
-    fontFamily: fonts.bodyMedium,
+    ...font.medium,
     fontSize: 15,
-    color: colors.ink,
+    color: colors.label,
   },
-  pin: { textAlign: 'center', fontSize: 24, letterSpacing: 12, marginTop: space.xl },
-  error: { fontFamily: fonts.bodyMedium, color: colors.coral, marginTop: space.md },
-  segment: { flexDirection: 'row', backgroundColor: colors.sandDeep, borderRadius: radius.pill, padding: 4, marginTop: space.lg },
+  pin: { textAlign: 'center', fontSize: 22, letterSpacing: 12, marginTop: space.xl },
+  error: { ...font.medium, color: colors.red, marginTop: space.md },
+  segment: { flexDirection: 'row', backgroundColor: colors.fill, borderRadius: radius.pill, padding: 4, marginTop: space.lg },
   segItem: { flex: 1, height: 42, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  segActive: { backgroundColor: colors.seaDeep },
-  segText: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: colors.ink },
+  segActive: { backgroundColor: colors.accent },
+  segText: { ...font.semibold, fontSize: 13, color: colors.label },
   stats: { flexDirection: 'row', gap: space.sm, marginTop: space.lg },
-  stat: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.md, padding: space.md },
-  statValue: { fontFamily: fonts.display, fontSize: 24, color: colors.ink },
+  stat: { flex: 1, backgroundColor: colors.secondaryGroupedBackground, borderRadius: radius.md, padding: space.md },
+  statValue: { ...font.serif, fontSize: 22, color: colors.label },
   orderCard: { marginTop: space.lg, borderLeftWidth: 5 },
   spot: {
-    fontFamily: fonts.displayBold,
-    fontSize: 26,
-    color: colors.seaDeep,
+    ...font.serifBold,
+    fontSize: 28,
+    color: colors.accent,
     minWidth: 56,
     textAlign: 'center',
   },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
-  badgeText: { fontFamily: fonts.bodySemi, fontSize: 11.5, color: colors.white },
-  qty: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.ink, minWidth: 28 },
-  item: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.ink },
-  note: { fontFamily: fonts.bodySemi, fontSize: 13, color: colors.coral, marginTop: 2 },
+  badgeText: { ...font.semibold, fontSize: 12, color: colors.onAccent },
+  qty: { ...font.bold, fontSize: 15, color: colors.label, minWidth: 28 },
+  item: { ...font.medium, fontSize: 15, color: colors.label },
+  note: { ...font.semibold, fontSize: 13, color: colors.red, marginTop: 2 },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.md, gap: space.md },
-  cardTotal: { fontFamily: fonts.bodySemi, fontSize: 14, color: colors.inkSoft },
+  cardTotal: { ...font.semibold, fontSize: 15, color: colors.secondaryLabel },
   smallBtn: { height: 42, paddingHorizontal: space.lg },
-  confirm: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.md, padding: space.md, borderRadius: radius.md, backgroundColor: colors.foam },
+  confirm: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.md, padding: space.md, borderRadius: radius.md, backgroundColor: colors.fill },
   closedRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
     paddingVertical: space.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
+    borderBottomColor: colors.separator,
   },
-  closedSpot: { fontFamily: fonts.bodySemi, fontSize: 13, color: colors.seaDeep },
+  closedSpot: { ...font.semibold, fontSize: 13, color: colors.accent },
   cameraBox: { marginTop: space.lg, height: 300, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: '#000' },
   cameraClose: { position: 'absolute', bottom: space.md, alignSelf: 'center', height: 44 },
   result: { flexDirection: 'row', gap: space.sm, alignItems: 'center', marginTop: space.lg, padding: space.md, borderRadius: radius.md },

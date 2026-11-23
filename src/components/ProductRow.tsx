@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { formatPrice, isOrderableService, serviceOf, type Product } from '../data/menu';
-import { colors, fonts, radius, space } from '../theme';
+import { colors, font, radius, space, textStyle } from '../theme';
 import { Icon } from './Icon';
 import { tap } from './ui';
 
@@ -14,7 +14,7 @@ export function ProductRow({ product }: { product: Product }) {
     router.push({ pathname: '/product/[id]', params: { id: product.id } });
   };
   return (
-    <Pressable onPress={open} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`${product.name}, ${formatPrice(product.price)}`} onPress={open} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
       <View style={{ flex: 1, paddingRight: space.md }}>
         <Text style={styles.name}>{product.name}</Text>
         {!!product.nameEn && !product.nameEn.includes(',') && <Text style={styles.en}>{product.nameEn}</Text>}
@@ -32,41 +32,44 @@ export function ProductRow({ product }: { product: Product }) {
           <Image source={product.image} style={styles.image} contentFit="cover" transition={200} />
           {orderable && (
             <View style={[styles.add, styles.addOnImage]}>
-              <Icon name="plus" size={16} color={colors.white} strokeWidth={2} />
+              <Icon name="plus" size={14} color={colors.accent} strokeWidth={2.2} weight="bold" />
             </View>
           )}
         </View>
       ) : orderable ? (
         <View style={styles.add}>
-          <Icon name="plus" size={16} color={colors.white} strokeWidth={2} />
+          <Icon name="plus" size={14} color={colors.accent} strokeWidth={2.2} weight="bold" />
         </View>
       ) : (
-        <Icon name="chevron-right" size={18} color={colors.muted} />
+        <Icon name="chevron-right" size={14} color={colors.tertiaryLabel} weight="semibold" />
       )}
     </Pressable>
   );
 }
 
+// [lists-and-tables › Content] kısa ad + en fazla 2 satır açıklama; ayrıntı, satıra dokununca açılan sayfada.
+// [typography] ad: New York (headline boyutu), açıklama: SF subhead + secondaryLabel.
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: space.lg,
+    paddingVertical: space.md + 2,
+    minHeight: 64,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
+    borderBottomColor: colors.separator,
   },
-  name: { fontFamily: fonts.display, fontSize: 19, color: colors.ink },
-  en: { fontFamily: fonts.displayItalic, fontSize: 14, color: colors.muted, marginTop: 1 },
-  desc: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: colors.inkSoft, marginTop: 6 },
-  price: { fontFamily: fonts.bodySemi, fontSize: 13.5, color: colors.ink, marginTop: 8 },
-  image: { width: 92, height: 92, borderRadius: radius.md },
+  name: { ...font.serifBold, ...textStyle.headline, color: colors.label },
+  en: { ...font.serifItalic, ...textStyle.subhead, color: colors.secondaryLabel },
+  desc: { ...font.regular, ...textStyle.subhead, color: colors.secondaryLabel, marginTop: 4 },
+  price: { ...font.semibold, ...textStyle.subhead, color: colors.label, marginTop: 6 },
+  image: { width: 88, height: 88, borderRadius: radius.md },
   add: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.seaDeep,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: colors.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addOnImage: { position: 'absolute', right: -6, bottom: -6, borderWidth: 3, borderColor: colors.sand, width: 36, height: 36, borderRadius: 18 },
+  addOnImage: { position: 'absolute', right: 6, bottom: 6, backgroundColor: colors.secondaryGroupedBackground },
 });

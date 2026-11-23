@@ -3,11 +3,11 @@ import { useNow } from '../../hooks/useNow';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '../../components/Icon';
-import { Button, Card, Divider, IconButton, Screen, T } from '../../components/ui';
+import { Button, Card, ListSection, Screen, T } from '../../components/ui';
 import { formatPrice } from '../../data/menu';
 import { ordering, restaurant } from '../../config/restaurant';
 import { liveStatus, useStore, type OrderStatus } from '../../store';
-import { colors, fonts, space } from '../../theme';
+import { colors, font, space, textStyle } from '../../theme';
 
 const steps: { id: OrderStatus; title: string; sub: string }[] = [
   { id: 'alindi', title: 'Sipariş alındı', sub: 'Ekibimize ulaştı' },
@@ -40,27 +40,24 @@ export default function OrderScreen() {
 
   return (
     <Screen>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flex: 1 }}>
-          <T v="label">Sipariş #{order.id.slice(-5)}</T>
-          <T v="h1" style={{ marginTop: 4 }}>
-            {order.mode === 'masa' ? `${ordering.areaName} ${order.table}` : `Gel-Al · ${order.pickupTime}`}
-          </T>
-        </View>
-        <IconButton name="close" label="Kapat" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
-      </View>
+      {/* Yerel gezinme çubuğu standart Geri düğmesini sağlar [toolbars › "Use the standard Back and Close buttons"] */}
+      <T v="label">Sipariş #{order.id.slice(-5)}</T>
+      <T v="h1" style={{ marginTop: 2 }}>
+        {order.mode === 'masa' ? `${ordering.areaName} ${order.table}` : `Gel-Al · ${order.pickupTime}`}
+      </T>
 
-      <Card style={{ marginTop: space.xl }}>
+      {/* [color › Inclusive color] tamamlanan adımlar onay simgesi + koyu metinle gösterilir, yalnızca renkle değil */}
+      <Card style={{ marginTop: space.lg }}>
         {steps.map((s, i) => {
           const done = i <= current;
           return (
             <View key={s.id} style={styles.step}>
               <View style={{ alignItems: 'center' }}>
-                <View style={[styles.dot, done && styles.dotDone]}>{done && <Icon name="check" size={14} color={colors.white} strokeWidth={2.4} />}</View>
-                {i < steps.length - 1 && <View style={[styles.rail, i < current && { backgroundColor: colors.seaDeep }]} />}
+                <View style={[styles.dot, done && styles.dotDone]}>{done && <Icon name="check" size={12} color={colors.onAccent} strokeWidth={2.4} weight="bold" />}</View>
+                {i < steps.length - 1 && <View style={[styles.rail, i < current && styles.railDone]} />}
               </View>
               <View style={{ flex: 1, paddingBottom: space.lg }}>
-                <Text style={[styles.stepTitle, !done && { color: colors.muted }]}>{s.title}</Text>
+                <Text style={[styles.stepTitle, !done && { color: colors.secondaryLabel }]}>{s.title}</Text>
                 <T v="small">{s.sub}</T>
               </View>
             </View>
@@ -68,27 +65,24 @@ export default function OrderScreen() {
         })}
       </Card>
 
-      <Card style={{ marginTop: space.lg }}>
+      <ListSection
+        header="Siparişiniz"
+        footer={order.paid ? `+${order.pearlsEarned} İnci hesabınıza eklendi.` : 'Hesabı ödediğinizde İnci’leriniz kartınıza otomatik yüklenir.'}
+      >
         {order.lines.map((l) => (
           <View key={l.key} style={styles.line}>
-            <T style={{ flex: 1, color: colors.ink }}>
+            <Text style={styles.lineText}>
               {l.qty} × {l.name}
               {l.optionName ? ` (${l.optionName})` : ''}
-            </T>
-            <T style={{ color: colors.ink }}>{formatPrice(l.unitPrice * l.qty)}</T>
+            </Text>
+            <Text style={styles.linePrice}>{formatPrice(l.unitPrice * l.qty)}</Text>
           </View>
         ))}
-        <Divider style={{ marginVertical: space.sm }} />
         <View style={styles.line}>
           <Text style={styles.total}>{order.paid ? 'Ödenen' : 'Hesapta ödenecek'}</Text>
           <Text style={styles.total}>{formatPrice(order.total)}</Text>
         </View>
-        <T v="small" style={{ color: colors.sea, marginTop: 4 }}>
-          {order.paid
-            ? `+${order.pearlsEarned} İnci hesabınıza eklendi`
-            : 'Hesabı ödediğinizde İnci’leriniz kartınıza otomatik yüklenir.'}
-        </T>
-      </Card>
+      </ListSection>
 
       <Button
         title="Tekrar sipariş ver"
@@ -111,14 +105,17 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: colors.line,
+    borderColor: colors.separator,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.secondaryGroupedBackground,
   },
-  dotDone: { backgroundColor: colors.seaDeep, borderColor: colors.seaDeep },
-  rail: { width: 2, flex: 1, backgroundColor: colors.line, marginVertical: 2 },
-  stepTitle: { fontFamily: fonts.bodySemi, fontSize: 15, color: colors.ink },
-  line: { flexDirection: 'row', paddingVertical: 4, gap: space.md },
-  total: { fontFamily: fonts.bodySemi, fontSize: 16, color: colors.ink },
+  dotDone: { backgroundColor: colors.green, borderColor: colors.green },
+  rail: { width: 2, flex: 1, backgroundColor: colors.separator, marginVertical: 2 },
+  railDone: { backgroundColor: colors.green },
+  stepTitle: { ...font.semibold, ...textStyle.headline, color: colors.label },
+  line: { flexDirection: 'row', alignItems: 'center', minHeight: 44, paddingHorizontal: space.lg, gap: space.md },
+  lineText: { flex: 1, ...font.regular, ...textStyle.body, color: colors.label },
+  linePrice: { ...font.regular, ...textStyle.body, color: colors.secondaryLabel },
+  total: { ...font.semibold, ...textStyle.body, color: colors.label },
 });

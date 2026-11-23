@@ -1,14 +1,14 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '../../components/Icon';
-import { Button, IconButton, Stepper, T, tap } from '../../components/ui';
+import { Button, IconButton, ListSection, Material, Stepper, T, tap } from '../../components/ui';
 import { allergenNames, formatPrice, getProduct, orderBlockReason } from '../../data/menu';
 import { useStore } from '../../store';
-import { colors, fonts, radius, space } from '../../theme';
+import { colors, font, space, textStyle } from '../../theme';
 
 export default function ProductScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -34,82 +34,99 @@ export default function ProductScreen() {
   const blocked = orderBlockReason(product.id);
   const unit = option?.price ?? product.price;
 
+  // Sayfa (sheet) olarak açılır: aşağı kaydırarak kapanır [sheets].
+  // Üst kontroller fotoğrafın üstünde yüzer → "clear" Liquid Glass [materials].
+  // [sheets] "the Cancel button belongs on the leading edge" → Kapat solda; ikincil eylem (favori) sağda.
+  const top = Platform.OS === 'ios' ? space.md : insets.top + space.md;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.sand }}>
+    <View style={{ flex: 1, backgroundColor: colors.groupedBackground }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 140 }}>
         {product.image ? (
-          <Image source={product.image} style={styles.hero} contentFit="cover" />
+          <Image source={product.image} style={styles.hero} contentFit="cover" accessibilityIgnoresInvertColors />
         ) : (
           <View style={[styles.hero, styles.heroPlaceholder]}>
-            <Image source={require('../../../assets/images/mark.png')} style={{ width: 84, height: 84, opacity: 0.35 }} contentFit="contain" />
+            <Image source={require('../../../assets/images/mark.png')} style={{ width: 72, height: 72, opacity: 0.3 }} contentFit="contain" />
           </View>
         )}
-        <IconButton name="close" label="Kapat" onPress={() => router.back()} style={[styles.close, { top: insets.top + space.md }]} />
-        <IconButton
-          name={isFavorite ? 'heart-filled' : 'heart'}
-          label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
-          onPress={() => toggleFavorite(product.id)}
-          style={[styles.close, { top: insets.top + space.md, right: space.lg + 52 }]}
-        />
 
-        <View style={{ padding: space.xl }}>
+        <View style={{ padding: space.lg }}>
           <T v="h1">{product.name}</T>
           {!!product.nameEn && !product.nameEn.includes(',') && <Text style={styles.en}>{product.nameEn}</Text>}
-          {!!product.description && <T style={{ marginTop: space.md, fontSize: 15, lineHeight: 22 }}>{product.description}</T>}
+          {!!product.description && <T style={{ marginTop: space.md }}>{product.description}</T>}
           {!!product.descriptionEn && <Text style={styles.descEn}>{product.descriptionEn}</Text>}
-
-          {product.allergens.length > 0 && (
-            <View style={styles.allergens}>
-              <Icon name="info" size={16} color={colors.muted} />
-              <T v="small" style={{ flex: 1 }}>
-                İçerir: {product.allergens.map((a) => allergenNames[a]).join(', ')}
-              </T>
-            </View>
-          )}
-
-          {product.options && (
-            <View style={{ marginTop: space.xl }}>
-              <T v="label">{product.optionsTitle}</T>
-              {product.options.map((o) => {
-                const active = o.id === optionId;
-                return (
-                  <Pressable key={o.id} onPress={() => (tap(), setOptionId(o.id))} style={styles.option}>
-                    <View style={[styles.radio, active && styles.radioActive]}>{active && <View style={styles.radioDot} />}</View>
-                    <Text style={styles.optionName}>{o.name}</Text>
-                    <Text style={styles.optionPrice}>{formatPrice(o.price)}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          )}
-
-          {!product.askWaiter && (
-            <View style={{ marginTop: space.xl }}>
-              <T v="label">Mutfağa not</T>
-              <TextInput
-                value={note}
-                onChangeText={setNote}
-                placeholder="Ör. az acılı, soğansız…"
-                placeholderTextColor={colors.muted}
-                style={styles.note}
-                maxLength={120}
-              />
-            </View>
-          )}
         </View>
+
+        {/* [lists-and-tables] "a table that lists options… adding an image — such as a checkmark — indicating that the item is selected" */}
+        {product.options && (
+          <ListSection header={product.optionsTitle} style={styles.section}>
+            {product.options.map((o) => {
+              const active = o.id === optionId;
+              return (
+                <Pressable
+                  key={o.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: active }}
+                  onPress={() => (tap(), setOptionId(o.id))}
+                  style={({ pressed }) => [styles.option, pressed && { backgroundColor: colors.fill }]}
+                >
+                  <Text style={styles.optionName}>{o.name}</Text>
+                  <Text style={styles.optionPrice}>{formatPrice(o.price)}</Text>
+                  <View style={{ width: 22, alignItems: 'flex-end' }}>{active && <Icon name="check" size={17} color={colors.accent} weight="semibold" />}</View>
+                </Pressable>
+              );
+            })}
+          </ListSection>
+        )}
+
+        {!product.askWaiter && (
+          <ListSection header="Mutfağa not" style={styles.section}>
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder="Ör. az acılı, soğansız…"
+              placeholderTextColor={colors.placeholder}
+              style={styles.note}
+              maxLength={120}
+              accessibilityLabel="Mutfağa not"
+            />
+          </ListSection>
+        )}
+
+        {product.allergens.length > 0 && (
+          // [color › Inclusive color] alerjenler adlarıyla yazılır, yalnızca simge/renkle değil
+          <Text style={[styles.allergens]}>İçerir: {product.allergens.map((a) => allergenNames[a]).join(', ')}</Text>
+        )}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + space.lg }]}>
+      <View style={[styles.topBar, { top }]} pointerEvents="box-none">
+        <IconButton name="close" label="Kapat" overMedia={!!product.image} onPress={() => router.back()} />
+        <IconButton
+          name={isFavorite ? 'heart-filled' : 'heart'}
+          color={isFavorite ? colors.red : colors.label}
+          label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          overMedia={!!product.image}
+          onPress={() => toggleFavorite(product.id)}
+        />
+      </View>
+
+      {/* Alt eylem alanı kontrol katmanıdır: içerik altından kayar, sistem malzemesi üzerinde durur [materials], [layout] */}
+      <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+        <Material style={[StyleSheet.absoluteFill, { borderRadius: 0 }]} />
         {product.askWaiter ? (
-          <T style={{ flex: 1, textAlign: 'center' }}>Günün balığını garsonunuzla birlikte seçebilirsiniz.</T>
+          <T v="secondary" style={{ flex: 1, textAlign: 'center' }}>
+            Günün balığını garsonunuzla birlikte seçebilirsiniz.
+          </T>
         ) : blocked ? (
           <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
-            <Icon name="clock" size={18} color={colors.muted} />
-            <T style={{ textAlign: 'center' }}>{blocked}</T>
+            <Icon name="clock" size={18} color={colors.secondaryLabel} />
+            <T v="secondary" style={{ textAlign: 'center' }}>
+              {blocked}
+            </T>
           </View>
         ) : (
           <>
             <Stepper value={qty} onChange={setQty} min={1} />
+            {/* [buttons] görünümdeki tek belirgin (prominent) düğme */}
             <Button
               title={`Ekle · ${formatPrice(unit * qty)}`}
               style={{ flex: 1 }}
@@ -126,44 +143,17 @@ export default function ProductScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: { width: '100%', height: 320 },
-  heroPlaceholder: { backgroundColor: colors.sandDeep, alignItems: 'center', justifyContent: 'center' },
-  close: { position: 'absolute', right: space.lg },
-  en: { fontFamily: fonts.displayItalic, fontSize: 18, color: colors.muted, marginTop: 2 },
-  descEn: { fontFamily: fonts.displayItalic, fontSize: 15, lineHeight: 21, color: colors.muted, marginTop: space.sm },
-  allergens: {
-    flexDirection: 'row',
-    gap: space.sm,
-    marginTop: space.lg,
-    padding: space.md,
-    borderRadius: radius.sm,
-    backgroundColor: colors.sandDeep,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-  },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
-  radioActive: { borderColor: colors.seaDeep },
-  radioDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.seaDeep },
-  optionName: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14.5, color: colors.ink },
-  optionPrice: { fontFamily: fonts.bodySemi, fontSize: 14, color: colors.ink },
-  note: {
-    marginTop: space.sm,
-    height: 50,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
-    paddingHorizontal: space.lg,
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: colors.ink,
-  },
+  hero: { width: '100%', height: 300 },
+  heroPlaceholder: { backgroundColor: colors.fill, alignItems: 'center', justifyContent: 'center' },
+  topBar: { position: 'absolute', left: space.lg, right: space.lg, flexDirection: 'row', justifyContent: 'space-between' },
+  en: { ...font.serifItalic, ...textStyle.title3, color: colors.secondaryLabel, marginTop: 2 },
+  descEn: { ...font.serifItalic, ...textStyle.subhead, color: colors.secondaryLabel, marginTop: space.sm },
+  section: { marginHorizontal: space.lg, marginTop: space.md },
+  option: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 48, paddingHorizontal: space.lg },
+  optionName: { flex: 1, ...font.regular, ...textStyle.body, color: colors.label },
+  optionPrice: { ...font.regular, ...textStyle.body, color: colors.secondaryLabel },
+  note: { minHeight: 48, paddingHorizontal: space.lg, ...font.regular, ...textStyle.body, color: colors.label },
+  allergens: { ...font.regular, ...textStyle.footnote, color: colors.secondaryLabel, marginHorizontal: space.lg * 2, marginTop: space.lg },
   footer: {
     position: 'absolute',
     left: 0,
@@ -172,10 +162,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.lg,
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-    backgroundColor: colors.sand,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
+    paddingHorizontal: space.lg,
+    paddingTop: space.md,
+    overflow: 'hidden',
   },
 });
