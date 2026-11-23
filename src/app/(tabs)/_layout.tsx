@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 
 import { CartAccessory, cartUsesTabAccessory } from '../../components/CartBar';
 import { useHydrated, useStore } from '../../store';
+import { useT, type StringKey } from '../../i18n';
 import { colors } from '../../theme';
 
 type TabIcon = ComponentProps<typeof NativeTabs.Trigger.Icon>;
@@ -19,16 +20,17 @@ type TabIcon = ComponentProps<typeof NativeTabs.Trigger.Icon>;
  * [tab-bars] "Avoid overflow tabs" → 5 sekme (iPhone'da More sekmesi oluşmaz).
  * Android'de aynı anlamlı Material simgeler (SF Symbols yalnızca Apple platformlarında kullanılabilir).
  */
-const tabs: { name: string; label: string; icon: TabIcon }[] = [
-  { name: '(home)', label: 'Keşfet', icon: { sf: { default: 'house', selected: 'house.fill' }, md: 'home' } },
-  { name: 'menu', label: 'Menü', icon: { sf: { default: 'menucard', selected: 'menucard.fill' }, md: 'restaurant_menu' } },
-  { name: 'card', label: 'Kartım', icon: { sf: 'qrcode', md: 'qr_code_2' } },
-  { name: 'reservation', label: 'Rezervasyon', icon: { sf: { default: 'calendar', selected: 'calendar' }, md: 'event' } },
-  { name: 'account', label: 'Hesabım', icon: { sf: { default: 'person.crop.circle', selected: 'person.crop.circle.fill' }, md: 'account_circle' } },
+const tabs: { name: string; label: StringKey; icon: TabIcon }[] = [
+  { name: '(home)', label: 'tab.home', icon: { sf: { default: 'house', selected: 'house.fill' }, md: 'home' } },
+  { name: 'menu', label: 'tab.menu', icon: { sf: { default: 'menucard', selected: 'menucard.fill' }, md: 'restaurant_menu' } },
+  { name: 'card', label: 'tab.card', icon: { sf: 'qrcode', md: 'qr_code_2' } },
+  { name: 'reservation', label: 'tab.reservation', icon: { sf: { default: 'calendar', selected: 'calendar' }, md: 'event' } },
+  { name: 'account', label: 'tab.account', icon: { sf: { default: 'person.crop.circle', selected: 'person.crop.circle.fill' }, md: 'account_circle' } },
 ];
 
 export default function TabsLayout() {
   const user = useStore((s) => s.user);
+  const { t: tr } = useT();
   const hasCart = useStore((s) => s.cart.length > 0);
   const hydrated = useHydrated();
   if (!hydrated) return null;
@@ -46,7 +48,7 @@ export default function TabsLayout() {
       {tabs.map((t) => (
         <NativeTabs.Trigger key={t.name} name={t.name}>
           <NativeTabs.Trigger.Icon {...t.icon} />
-          <NativeTabs.Trigger.Label>{t.label}</NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Label>{tr(t.label)}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       ))}
     </NativeTabs>

@@ -33,6 +33,11 @@ export const serviceHours = {
  * Pilot sonrası diğer bölümler buradan açılır; kod değişikliği gerekmez.
  */
 export const ordering = {
+  /**
+   * Uygulamadan sipariş. KAPALI: uygulama şimdilik QR menü gibi çalışır (menü, fiyat, alerjen bilgisi).
+   * true yapıldığında plaj pilotu (aşağıdaki ayarlar) yeniden açılır.
+   */
+  enabled: false,
   /** Sipariş alınan alan adı (arayüzde görünür). */
   areaName: 'Şezlong',
   /** Uygulamadan sipariş edilebilen menüler. Pilot: yalnızca öğle (plaj) menüsü ve içecekler. */
@@ -62,23 +67,28 @@ export const appLinkBase = 'https://app.denizkapisi.com.tr';
 export const staffPin = '2580';
 
 /**
- * Sadakat programı: "İnci".
- * Her harcamada seviyeye göre İnci kazanılır; 1 İnci = 1 ₺ değerindedir.
- * Seviye, son 12 aydaki toplam harcamaya göre belirlenir.
+ * Sadakat programı: "İnci". 1 İnci = 1 ₺; bir sonraki ziyarette indirim olarak harcanır.
+ * Kazanım oranı, son 12 aydaki toplam harcamayla kademeli artar; en üst seviyede %15.
+ * Seviye adları ve ayrıcalık metinleri dile göre src/i18n'de (tier.<id>.name).
+ * EŞİKLER VE ORANLAR RESTORAN TARAFINDAN ONAYLANMALI (marj etkisi: bkz. docs/SADAKAT.md).
  */
 export const tiers = [
-  { id: 'misafir', name: 'Misafir', min: 0, rate: 0.03, perks: ['Her harcamada %3 İnci', 'Doğum gününde tatlı ikramı'] },
-  { id: 'dost', name: 'Dost', min: 15000, rate: 0.05, perks: ['Her harcamada %5 İnci', 'Doğum gününde tatlı ikramı', 'Rezervasyonda öncelik'] },
-  {
-    id: 'aile',
-    name: 'Aileden',
-    min: 40000,
-    rate: 0.07,
-    perks: ['Her harcamada %7 İnci', 'Doğum gününde şefin sürprizi', 'Rezervasyonda öncelik', 'Özel tadım gecelerine davet'],
-  },
+  { id: 'misafir', min: 0, rate: 0.03 },
+  { id: 'dost', min: 10000, rate: 0.05 },
+  { id: 'mudavim', min: 25000, rate: 0.08 },
+  { id: 'aile', min: 50000, rate: 0.12 },
+  { id: 'kaptan', min: 100000, rate: 0.15 },
 ] as const;
 
 export type TierId = (typeof tiers)[number]['id'];
+
+/** İkramlar (kupon olarak verilir; garsona gösterilir). */
+export const gifts = {
+  /** İlk kayıtta: kahve bizden. */
+  welcome: { id: 'hosgeldin-kahve', validDays: 30 },
+  /** Doğum gününde: tatlı bizden. Doğum gününden 3 gün önce açılır, 7 gün sonrasına kadar geçerli. */
+  birthday: { id: 'dogumgunu-tatli', daysBefore: 3, daysAfter: 7 },
+} as const;
 
 /** Cüzdana para yüklerken verilen bonus İnci. */
 export const topUpOptions = [
@@ -87,11 +97,11 @@ export const topUpOptions = [
   { amount: 2500, bonus: 250 },
 ] as const;
 
-/** İnci ile alınabilecek ödüller (ürün id'leri src/data/menu.ts'teki ürünlere karşılık gelir). */
+/** İnci ile alınabilecek ödüller. Başlık ve açıklamalar src/i18n'de (reward.<id>). */
 export const rewards = [
-  { id: 'r-cay', title: 'Demleme Çay', cost: 75, note: 'Ev yapımı kurabiyesiyle' },
-  { id: 'r-turk-kahvesi', title: 'Türk Kahvesi', cost: 150, note: 'Damla sakızlı da olabilir' },
-  { id: 'r-limonata', title: 'Ev Yapımı Limonata', cost: 225, note: 'Mevsim aromasıyla' },
-  { id: 'r-tatli', title: 'Pekmezli Muhallebi', cost: 480, note: 'Keçiboynuzu pekmezli' },
-  { id: 'r-kahvalti', title: 'Kahvaltı Tabağı', cost: 875, note: 'İki bardak çay dahil' },
+  { id: 'cay', cost: 75 },
+  { id: 'kahve', cost: 150 },
+  { id: 'limonata', cost: 225 },
+  { id: 'tatli', cost: 480 },
+  { id: 'kahvalti', cost: 875 },
 ] as const;

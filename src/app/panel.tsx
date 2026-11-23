@@ -51,15 +51,18 @@ export default function StaffPanel() {
   return (
     <View style={[styles.root, { paddingTop: space.md }]}>
       {/* [segmented-controls › iOS] "switch between closely related subviews" */}
-      <Segmented
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'siparis', label: `${ordering.areaName} siparişleri` },
-          { value: 'puan', label: 'Puan yükle' },
-        ]}
-      />
-      {tab === 'siparis' ? <OrdersBoard /> : <PointsDesk />}
+      {ordering.enabled && (
+        <Segmented
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'siparis', label: `${ordering.areaName} siparişleri` },
+            { value: 'puan', label: 'Puan yükle' },
+          ]}
+        />
+      )}
+      {/* Sipariş kapalıyken panel yalnızca kasada QR ile puan yükleme ekranıdır */}
+      {ordering.enabled && tab === 'siparis' ? <OrdersBoard /> : <PointsDesk />}
     </View>
   );
 }
@@ -129,7 +132,17 @@ function OrdersBoard() {
   );
 }
 
-function OrderCard({ order, now, onStatus, onPaid }: { order: Order; now: number; onStatus: (s: OrderStatus) => void; onPaid: () => void }) {
+function OrderCard({
+  order,
+  now,
+  onStatus,
+  onPaid,
+}: {
+  order: Order;
+  now: number;
+  onStatus: (s: OrderStatus) => void;
+  onPaid: () => void;
+}) {
   const status = liveStatus(order, now);
   const meta = statusMeta[status];
   const mins = Math.max(0, Math.round((now - new Date(order.createdAt).getTime()) / 60000));
@@ -180,7 +193,13 @@ function OrderCard({ order, now, onStatus, onPaid }: { order: Order; now: number
             <Button title="Evet" onPress={onPaid} style={styles.smallBtn} />
           </View>
         ) : (
-          <Button title="Ödeme alındı" icon="check" variant="secondary" onPress={() => setConfirmPay(true)} style={{ marginTop: space.md, height: 46 }} />
+          <Button
+            title="Ödeme alındı"
+            icon="check"
+            variant="secondary"
+            onPress={() => setConfirmPay(true)}
+            style={{ marginTop: space.md, height: 46 }}
+          />
         ))}
     </Card>
   );
@@ -240,8 +259,8 @@ function PointsDesk() {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
       <T style={{ marginTop: space.lg }}>
-        Misafir hesabı öderken <Text style={{ ...font.semibold }}>Kartım</Text> ekranındaki QR&apos;ı gösterir. Okutun, ödenen
-        tutarı girin; İnci seviyesine göre (%3–%7) otomatik hesaplanır.
+        Misafir hesabı öderken <Text style={{ ...font.semibold }}>Kartım</Text> ekranındaki QR&apos;ı gösterir. Okutun, ödenen tutarı girin;
+        İnci seviyesine göre (%3–%7) otomatik hesaplanır.
       </T>
 
       {scanning && permission?.granted ? (
@@ -285,14 +304,25 @@ function PointsDesk() {
       />
       {!!codeText && (
         <T v="small" style={{ marginTop: 6, color: parsed ? colors.green : colors.red }}>
-          {!parsed ? 'Kod tanınmadı.' : 'manual' in parsed ? `Üye ${parsed.memberNo} (elle girildi, kayda geçer)` : `Üye ${parsed.memberNo} · QR okundu`}
+          {!parsed
+            ? 'Kod tanınmadı.'
+            : 'manual' in parsed
+              ? `Üye ${parsed.memberNo} (elle girildi, kayda geçer)`
+              : `Üye ${parsed.memberNo} · QR okundu`}
         </T>
       )}
 
       <T v="label" style={{ marginTop: space.lg }}>
         Ödenen hesap tutarı (₺)
       </T>
-      <TextInput value={amount} onChangeText={setAmount} placeholder="Ör. 1450" placeholderTextColor={colors.placeholder} keyboardType="decimal-pad" style={styles.input} />
+      <TextInput
+        value={amount}
+        onChangeText={setAmount}
+        placeholder="Ör. 1450"
+        placeholderTextColor={colors.placeholder}
+        keyboardType="decimal-pad"
+        style={styles.input}
+      />
 
       <Button title="İnci yükle" onPress={submit} loading={busy} disabled={!parsed || !(amountNum > 0)} style={{ marginTop: space.xl }} />
 
@@ -361,7 +391,15 @@ const styles = StyleSheet.create({
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.md, gap: space.md },
   cardTotal: { ...font.semibold, fontSize: 15, color: colors.secondaryLabel },
   smallBtn: { height: 42, paddingHorizontal: space.lg },
-  confirm: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.md, padding: space.md, borderRadius: radius.md, backgroundColor: colors.fill },
+  confirm: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    marginTop: space.md,
+    padding: space.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.fill,
+  },
   closedRow: {
     flexDirection: 'row',
     alignItems: 'center',

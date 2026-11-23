@@ -1,5 +1,7 @@
 import { ordering, serviceHours } from '../config/restaurant';
+import type { Lang } from '../i18n/lang';
 import generated from './menu.generated.json';
+import { allergenI18n, en as enItems, optionNames, ru as ruItems, sectionTitles } from './menu.i18n';
 
 export type AllergenCode =
   | 'WH' | 'EG' | 'PN' | 'CY' | 'LP' | 'SE' | 'SP' | 'CS' | 'SY' | 'MD' | 'MK' | 'FH' | 'TN' | 'MS';
@@ -195,4 +197,32 @@ export function featured(): Product[] {
 
 export function formatPrice(v: number): string {
   return `₺${v.toLocaleString('tr-TR')}`;
+}
+
+/* ------------------------------------------------------------- ÇEVİRİ --- */
+
+/**
+ * Ürünün seçili dildeki görünümü.
+ * - title: büyük ad; alt: küçük italik ikinci ad (TR'de İngilizce ad, diğer dillerde yemeğin Türkçe özgün adı)
+ */
+export function localize(p: Product, lang: Lang) {
+  const enName = enItems[p.id]?.[0] ?? (p.nameEn && !p.nameEn.includes(',') ? p.nameEn : undefined);
+  const enDesc = enItems[p.id]?.[1] ?? p.descriptionEn;
+  if (lang === 'tr') return { title: p.name, alt: enName && enName !== p.name ? enName : undefined, description: p.description };
+  const title = (lang === 'ru' ? ruItems[p.id]?.[0] : undefined) ?? enName ?? p.name;
+  const description = (lang === 'ru' ? ruItems[p.id]?.[1] : undefined) ?? enDesc ?? p.description;
+  return { title, alt: title !== p.name ? p.name : undefined, description };
+}
+
+export function localizeOption(name: string, lang: Lang) {
+  return lang === 'tr' ? name : (optionNames[name]?.[lang] ?? name);
+}
+
+export function localizeSection(sec: { id: string; title: string; titleEn?: string }, lang: Lang) {
+  if (lang === 'tr') return { title: sec.title, alt: sec.id === 'cocuk' ? sec.titleEn : undefined };
+  return { title: sectionTitles[sec.id]?.[lang] ?? sec.titleEn ?? sec.title, alt: undefined };
+}
+
+export function allergenName(code: AllergenCode, lang: Lang) {
+  return lang === 'tr' ? allergenNames[code] : allergenI18n[code][lang];
 }

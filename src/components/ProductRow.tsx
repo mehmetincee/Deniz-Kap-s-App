@@ -2,29 +2,34 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { formatPrice, isOrderableService, serviceOf, type Product } from '../data/menu';
+import { ordering } from '../config/restaurant';
+import { formatPrice, isOrderableService, localize, serviceOf, type Product } from '../data/menu';
+import { useT } from '../i18n';
 import { colors, font, radius, space, textStyle } from '../theme';
 import { Icon } from './Icon';
 import { tap } from './ui';
 
 export function ProductRow({ product }: { product: Product }) {
-  const orderable = isOrderableService(serviceOf(product.id)) && !product.askWaiter;
+  const orderable = ordering.enabled && isOrderableService(serviceOf(product.id)) && !product.askWaiter;
+  const { t, lang } = useT();
+  const l = localize(product, lang);
+  const priceText = product.askWaiter ? t('menu.askWaiter') : product.options ? t('menu.from', { price: formatPrice(product.price) }) : formatPrice(product.price);
   const open = () => {
     tap();
     router.push({ pathname: '/product/[id]', params: { id: product.id } });
   };
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`${product.name}, ${formatPrice(product.price)}`} onPress={open} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`${l.title}, ${priceText}`} onPress={open} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
       <View style={{ flex: 1, paddingRight: space.md }}>
-        <Text style={styles.name}>{product.name}</Text>
-        {!!product.nameEn && !product.nameEn.includes(',') && <Text style={styles.en}>{product.nameEn}</Text>}
-        {!!product.description && (
+        <Text style={styles.name}>{l.title}</Text>
+        {!!l.alt && <Text style={styles.en}>{l.alt}</Text>}
+        {!!l.description && (
           <Text style={styles.desc} numberOfLines={2}>
-            {product.description}
+            {l.description}
           </Text>
         )}
         <Text style={styles.price}>
-          {product.askWaiter ? 'Garsona sorunuz' : product.options ? `${formatPrice(product.price)}'den` : formatPrice(product.price)}
+          {priceText}
         </Text>
       </View>
       {product.image ? (

@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native';
 import { Icon, type IconName } from '../../components/Icon';
 import { Material } from '../../components/ui';
 import { useHydrated, useStore } from '../../store';
+import { useT, type StringKey } from '../../i18n';
 import { colors, font, textStyle } from '../../theme';
 
 /**
@@ -13,16 +14,17 @@ import { colors, font, textStyle } from '../../theme';
  * [tab-bars › iOS], [tab-bars › "Include tab labels… single words"], [materials › Standard materials].
  * SF Symbols web'de kullanılamadığı için aynı anlamlı çizgi simgeler gösterilir [sf-symbols › lisans].
  */
-const tabs: { name: string; label: string; icon: IconName }[] = [
-  { name: '(home)', label: 'Keşfet', icon: 'home' },
-  { name: 'menu', label: 'Menü', icon: 'menu' },
-  { name: 'card', label: 'Kartım', icon: 'card' },
-  { name: 'reservation', label: 'Rezervasyon', icon: 'calendar' },
-  { name: 'account', label: 'Hesabım', icon: 'user' },
+const tabs: { name: string; label: StringKey; icon: IconName }[] = [
+  { name: '(home)', label: 'tab.home', icon: 'home' },
+  { name: 'menu', label: 'tab.menu', icon: 'menu' },
+  { name: 'card', label: 'tab.card', icon: 'card' },
+  { name: 'reservation', label: 'tab.reservation', icon: 'calendar' },
+  { name: 'account', label: 'tab.account', icon: 'user' },
 ];
 
 export default function TabsLayoutWeb() {
   const user = useStore((s) => s.user);
+  const { t: tr } = useT();
   const hydrated = useHydrated();
   if (!hydrated) return null;
   if (!user) return <Redirect href="/welcome" />;
@@ -44,7 +46,7 @@ export default function TabsLayoutWeb() {
           key={t.name}
           name={t.name}
           options={{
-            title: t.label,
+            title: tr(t.label),
             tabBarIcon: ({ color, focused }) => <Icon name={t.icon} size={24} color={String(color)} strokeWidth={focused ? 2.1 : 1.6} />,
           }}
         />

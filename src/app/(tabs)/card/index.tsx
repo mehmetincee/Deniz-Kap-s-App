@@ -7,7 +7,8 @@ import { MemberCard } from '../../../components/MemberCard';
 import { useNow } from '../../../hooks/useNow';
 import { CODE_WINDOW_MS, makeMemberCode, windowOf } from '../../../services/memberCode';
 import { Button, Card, ListSection, Row, Screen, Segmented, T, tap } from '../../../components/ui';
-import { rewards, tiers, topUpOptions } from '../../../config/restaurant';
+import { ordering, rewards, tiers, topUpOptions } from '../../../config/restaurant';
+import { pct, useT, type StringKey } from '../../../i18n';
 import { formatPrice } from '../../../data/menu';
 import { payWithCard } from '../../../services/payment';
 import { useStore, useTier } from '../../../store';
@@ -42,6 +43,7 @@ export default function LoyaltyCard() {
   const [amount, setAmount] = useState<number>(topUpOptions[1].amount);
   const [loading, setLoading] = useState(false);
   const { current } = useTier();
+  const { t, locale, lang } = useT();
   const now = useNow();
   const activeCoupons = coupons.filter((c) => !c.used && new Date(c.expiresAt).getTime() > now);
 
@@ -56,53 +58,49 @@ export default function LoyaltyCard() {
     topUp(o.amount, o.bonus);
   }
 
+  /** Seviyenin ayrıcalıkları: oran her seviyede; doğum günü herkese; üst seviyelerde ek ayrıcalıklar. */
+  const perks = (i: number, rate: number) =>
+    [
+      t('card.perkRate', { rate: Math.round(rate * 100) }),
+      t('card.perkBirthday'),
+      i >= 1 && t('card.perkPriority'),
+      i >= 3 && t('card.perkTasting'),
+      i >= 4 && t('card.perkCaptain'),
+    ].filter(Boolean) as string[];
+
+  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(locale, { day: 'numeric', month: 'long' });
+
   return (
     <Screen>
       <MemberCard />
 
-      {/* QR her iki görünüm modunda da beyaz zemin üstünde siyah kalır: okuyucular ters renkli kodu okuyamayabilir.
-          [layout › watchOS] QR gösterme anının özel bir kullanım olduğu HIG'de de belirtilir. */}
+      {/* QR her iki görünüm modunda da beyaz zemin üstünde siyah kalır: okuyucular ters renkli kodu okuyamayabilir. */}
       <Card style={styles.qrCard}>
-        <View style={styles.qrBox} accessible accessibilityLabel="Üyelik QR kodu">
+        <View style={styles.qrBox} accessible accessibilityLabel={t('card.scanTitle')}>
           <QRCode value={code} size={180} color="#000000" backgroundColor="#FFFFFF" />
         </View>
         <T v="h3" style={{ marginTop: space.lg }}>
-          Hesabı öderken okutun
+          {t('card.scanTitle')}
         </T>
         <T v="small" style={{ textAlign: 'center', marginTop: 4 }}>
-          Garsonunuza ya da kasaya gösterin; hesap tutarınız kadar İnci yüklenir. Kod 30 saniyede bir yenilenir.
+          {t('card.scanBody')}
         </T>
         <Text style={styles.memberNo} selectable>
           {user?.memberNo}
         </Text>
       </Card>
 
-      <ListSection header="Deniz Kapısı Cüzdan" footer="Kullanılmayan bakiye, talep halinde yükleme yapılan karta iade edilir.">
-        <View style={styles.walletRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.walletLabel}>Bakiye</Text>
-            <Text style={styles.walletValue}>{formatPrice(wallet)}</Text>
-          </View>
-          <Text style={styles.walletBonus}>+{topUpOptions.find((o) => o.amount === amount)?.bonus} İnci bonus</Text>
-        </View>
-        <View style={{ padding: space.lg, gap: space.md }}>
-          {/* [segmented-controls] birbiriyle ilişkili tek seçim → segment kontrolü */}
-          <Segmented value={amount} onChange={setAmount} options={topUpOptions.map((o) => ({ value: o.amount as number, label: formatPrice(o.amount) }))} />
-          <Button title={loading ? 'Ödeme bekleniyor…' : `${formatPrice(amount)} yükle`} icon="wallet" loading={loading} onPress={doTopUp} />
-        </View>
-      </ListSection>
-
       {activeCoupons.length > 0 && (
-        <ListSection header="Kuponlarım" footer="Kodu garsonunuza gösterin.">
+        <ListSection header={t('card.coupons')} footer={t('card.couponsFooter')}>
           {activeCoupons.map((c) => (
             <Row
               key={c.id}
-              icon="gift"
-              iconColor={colors.orange}
-              title={c.title}
-              subtitle={`Son gün ${new Date(c.expiresAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`}
+              icon={c.key === 'gift.birthday' ? 'cake' : 'gift'}
+              iconColor={c.kind === 'gift' ? colors.orange : colors.indigo}
+              title={c.key ? t(c.key) : c.title}
+              subtitle={t('card.validUntil', { date: fmtDate(c.expiresAt) })}
               right={
-                <Text style={styles.couponCode} selectable accessibilityLabel={`Kupon kodu ${c.code.split('').join(' ')}`}>
+                <Text style={styles.couponCode} selectable accessibilityLabel={c.code.split('').join(' ')}>
                   {c.code}
                 </Text>
               }
@@ -111,32 +109,49 @@ export default function LoyaltyCard() {
         </ListSection>
       )}
 
-      <ListSection header="İnci ile al" footer="Ödül alındığında 30 gün geçerli bir kupon kodu oluşur.">
+      {/* Uygulama içi ödeme açıldığında cüzdan (para yükleme + bonus İnci) gösterilir */}
+      {ordering.onlinePayment && (
+        <ListSection header="Deniz Kapısı Cüzdan" footer="Kullanılmayan bakiye, talep halinde yükleme yapılan karta iade edilir.">
+          <View style={styles.walletRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.walletLabel}>Bakiye</Text>
+              <Text style={styles.walletValue}>{formatPrice(wallet)}</Text>
+            </View>
+          </View>
+          <View style={{ padding: space.lg, gap: space.md }}>
+            <Segmented value={amount} onChange={setAmount} options={topUpOptions.map((o) => ({ value: o.amount as number, label: formatPrice(o.amount) }))} />
+            <Button title={`${formatPrice(amount)}`} icon="wallet" loading={loading} onPress={doTopUp} />
+          </View>
+        </ListSection>
+      )}
+
+      <ListSection header={t('card.rewards')} footer={t('card.rewardsFooter')}>
         {rewards.map((r) => {
           const enough = pearls >= r.cost;
+          const title = t(`reward.${r.id}`);
           return (
             <Row
               key={r.id}
               icon="gift"
               iconColor={colors.indigo}
-              title={r.title}
-              subtitle={r.note}
+              title={title}
+              subtitle={t(`reward.${r.id}Note`)}
               right={
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${r.title}, ${r.cost} İnci`}
+                  accessibilityLabel={`${title}, ${t('card.pearls', { n: r.cost })}`}
                   accessibilityState={{ disabled: !enough }}
-                  accessibilityHint={enough ? 'Kupon oluşturur' : `${r.cost - pearls} İnci daha gerekli`}
+                  accessibilityHint={enough ? undefined : t('card.needMore', { n: r.cost - pearls })}
                   disabled={!enough}
                   hitSlop={8}
                   onPress={() => {
                     tap();
                     // Kupon "Kuponlarım" bölümünde hemen görünür; ayrıca bilgi penceresi açılmaz [alerts]
-                    redeem(r.title, r.cost);
+                    redeem(r.id, r.cost);
                   }}
                   style={[styles.costButton, !enough && { opacity: 0.45 }]}
                 >
-                  <Text style={styles.costText}>{r.cost} İnci</Text>
+                  <Text style={styles.costText}>{t('card.pearls', { n: r.cost })}</Text>
                 </Pressable>
               }
             />
@@ -144,30 +159,30 @@ export default function LoyaltyCard() {
         })}
       </ListSection>
 
-      <ListSection header="Seviyeler" footer="Seviye, son 12 aydaki harcamanıza göre belirlenir.">
-        {tiers.map((t) => (
+      <ListSection header={t('card.levels')} footer={t('card.levelsFooter')}>
+        {tiers.map((tier, i) => (
           <Row
-            key={t.id}
-            title={`${t.name} · ${t.min === 0 ? 'başlangıç' : `yıllık ${formatPrice(t.min)}+`}`}
-            subtitle={t.perks.join(' · ')}
-            right={t.id === current.id ? <Icon name="check" size={17} color={colors.accent} weight="semibold" /> : <View style={{ width: 17 }} />}
+            key={tier.id}
+            title={`${t(`tier.${tier.id}`)} · ${pct(tier.rate, lang)}`}
+            subtitle={`${tier.min === 0 ? t('card.levelStart') : t('card.levelFrom', { amount: tier.min.toLocaleString(locale) })}\n${perks(i, tier.rate).join(' · ')}`}
+            right={tier.id === current.id ? <Icon name="check" size={17} color={colors.accent} weight="semibold" /> : <View style={{ width: 17 }} />}
           />
         ))}
       </ListSection>
 
-      <ListSection header="Hareketler">
-        {activity.length === 0 && <Row title="Henüz hareket yok" />}
+      <ListSection header={t('card.activity')}>
+        {activity.length === 0 && <Row title={t('card.noActivity')} />}
         {activity.slice(0, 12).map((a) => (
           <Row
             key={a.id}
-            title={a.title}
-            subtitle={new Date(a.at).toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+            title={a.key ? t(a.key, { title: a.params?.gift ? t(a.params.gift as StringKey) : '' }) : a.title}
+            subtitle={new Date(a.at).toLocaleString(locale, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
             right={
               a.pearls !== undefined && a.pearls !== 0 ? (
                 // [color › Inclusive color] artı/eksi işareti de yazılır, yalnızca renk değil
                 <Text style={[styles.delta, { color: a.pearls > 0 ? colors.green : colors.red }]}>
                   {a.pearls > 0 ? '+' : '−'}
-                  {Math.abs(a.pearls)} İnci
+                  {Math.abs(a.pearls)}
                 </Text>
               ) : (
                 <View />

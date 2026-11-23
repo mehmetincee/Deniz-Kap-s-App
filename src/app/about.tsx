@@ -4,43 +4,37 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton, Screen, T } from '../components/ui';
+import { useT } from '../i18n';
 import { colors, font, radius, space } from '../theme';
 
-const timeline = [
-  { year: '1971', text: 'Mehmet İnce, İçmeler’in şifalı sularını keşfetmeye gelen misafirler için küçük bir pansiyon ve restoran açar.' },
-  { year: '2. kuşak', text: 'Bakiye İnce mutfağa özgün dokunuşlar ve modern yorumlar katar; Ege’nin ruhu tabağa yansır.' },
-  { year: 'Bugün', text: 'Üçüncü kuşak; bahçeden gelen taze otlar ve yerel pazar ürünleriyle geleneği bugünün mutfağıyla buluşturuyor.' },
-];
+const timeline = [1, 2, 3] as const;
 
 export default function About() {
   const insets = useSafeAreaInsets();
+  const { t } = useT();
   return (
     <Screen padded={false} bottomInset={40} style={{ paddingTop: 0 }}>
       <View>
         <Image source={require('../../assets/images/chefs.jpg')} style={styles.hero} contentFit="cover" />
-        <IconButton name="chevron-left" label="Geri" overMedia onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
+        <IconButton name="chevron-left" label={t('common.back')} overMedia onPress={() => router.back()} style={[styles.back, { top: insets.top + space.sm }]} />
       </View>
       <View style={{ padding: space.xl }}>
-        <T v="label">Hikayemiz</T>
+        <T v="label">{t('about.kicker')}</T>
         <T v="hero" style={{ marginTop: 6 }}>
-          Lezzet, Ruh, Gelenek…
+          {t('about.title')}
         </T>
-        <T style={{ marginTop: space.lg, fontSize: 15, lineHeight: 20 }}>
-          Deniz Kapısı, sadece bir restoran değil; nesiller boyu süren bir aile hikâyesi. Mutfakta anne ve oğulun emeği, bahçemizde
-          yetişen taze otlar, her sabah pazardan özenle seçilen yerel ürünlerle birleşir. Bize gelen herkes bir misafir değil,
-          soframızın bir parçasıdır.
-        </T>
+        <T style={{ marginTop: space.lg, fontSize: 15, lineHeight: 20 }}>{t('about.body')}</T>
 
         <View style={{ marginTop: space.xxl }}>
-          {timeline.map((t, i) => (
-            <View key={t.year} style={styles.item}>
+          {timeline.map((n, i) => (
+            <View key={n} style={styles.item}>
               <View style={{ alignItems: 'center' }}>
                 <View style={styles.dot} />
                 {i < timeline.length - 1 && <View style={styles.rail} />}
               </View>
               <View style={{ flex: 1, paddingBottom: space.xl }}>
-                <Text style={styles.year}>{t.year}</Text>
-                <T style={{ marginTop: 4 }}>{t.text}</T>
+                <Text style={styles.year}>{t(`about.y${n}`)}</Text>
+                <T style={{ marginTop: 4 }}>{t(`about.t${n}`)}</T>
               </View>
             </View>
           ))}
@@ -50,7 +44,7 @@ export default function About() {
           <Image source={require('../../assets/images/heritage2.jpg')} style={styles.photo} contentFit="cover" />
           <Image source={require('../../assets/images/olive.jpg')} style={styles.photo} contentFit="cover" />
         </View>
-        <Text style={styles.sign}>Bakiye ve Mehmet İnce</Text>
+        <Text style={styles.sign}>{t('about.sign')}</Text>
       </View>
     </Screen>
   );

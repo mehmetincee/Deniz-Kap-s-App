@@ -4,7 +4,10 @@ import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { tiers, type TierId } from '../config/restaurant';
+import { gifts, tiers, type TierId } from '../config/restaurant';
+import { deviceLang, type Lang } from '../i18n/lang';
+import { translate } from '../i18n/translate';
+import type { StringKey } from '../i18n/strings';
 import type { Product } from '../data/menu';
 
 export type CartLine = {
@@ -68,7 +71,10 @@ export type Reservation = {
 export type Activity = {
   id: string;
   at: string;
+  /** Eski kayıtlar için düz metin; yeni kayıtlar dile göre key + params ile gösterilir. */
   title: string;
+  key?: StringKey;
+  params?: Record<string, string>;
   pearls?: number;
   amount?: number;
 };
@@ -77,6 +83,9 @@ export type Coupon = {
   id: string;
   code: string;
   title: string;
+  /** Başlığın çeviri anahtarı (ör. gift.welcome, reward.kahve). */
+  key?: StringKey;
+  kind?: 'gift' | 'reward';
   cost: number;
   createdAt: string;
   /** Kupon 30 gün geçerlidir. */
@@ -87,7 +96,8 @@ export type Coupon = {
 export type User = {
   name: string;
   phone: string;
-  birthday?: string;
+  /** Yalnızca gün ve ay (yıl istenmez — KVKK veri en aza indirme). */
+  birthday?: { day: number; month: number };
   memberNo: string;
   joinedAt: string;
   /** Kart QR'ını imzalamak için kişiye özel gizli anahtar (sunucuda da saklanır). */
@@ -103,6 +113,15 @@ type State = {
   favorites: string[];
   /** Hoş geldin hediyesi verilmiş telefonlar (çıkış yapınca silinmez; tekrar hediye alınamaz). */
   welcomed: string[];
+  /** Restorandaki harcamalar (QR okutma, ödenen sipariş): seviye bunlardan hesaplanır. */
+  visits: { at: string; amount: number }[];
+  /** Doğum günü tatlısı verilen yıllar ("05532…:2026"). */
+  birthdayGifts: string[];
+  /** Arayüz dili (çıkışta sıfırlanmaz). */
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  /** Doğum günü penceresindeyse tatlı kuponunu oluşturur (yılda bir). */
+  grantBirthdayGift: (now?: Date) => void;
   cart: CartLine[];
   orders: Order[];
   reservations: Reservation[];
@@ -111,7 +130,7 @@ type State = {
   table: string;
   setOrderContext: (patch: Partial<{ orderMode: OrderMode; table: string }>) => void;
 
-  signIn: (name: string, phone: string) => void;
+  signIn: (name: string, phone: string, birthday?: { day: number; month: number }) => void;
   signOut: () => void;
   updateProfile: (patch: Partial<Pick<User, 'name' | 'birthday'>>) => void;
 
@@ -131,7 +150,7 @@ type State = {
   reorder: (order: Order) => void;
 
   topUp: (amount: number, bonus: number) => void;
-  redeem: (title: string, cost: number) => Coupon | null;
+  redeem: (rewardId: string, cost: number) => Coupon | null;
   toggleFavorite: (productId: string) => void;
 
   addReservation: (r: Omit<Reservation, 'id' | 'status'>) => Reservation;
@@ -165,16 +184,24 @@ export function liveStatus(order: Order, now = Date.now()): OrderStatus {
   return hours > 6 ? 'teslim' : order.status;
 }
 
-/** Son 12 aydaki sipariş harcaması: seviye buna göre belirlenir ve zamanla düşer. */
-export function spendLast12Months(orders: Order[], now = Date.now()) {
+/** Son 12 aydaki harcama: seviye (kazanım oranı) buna göre belirlenir ve zamanla düşer. */
+export function spendLast12Months(visits: { at: string; amount: number }[], now = Date.now()) {
   const from = now - 365 * 24 * 3600 * 1000;
-  return orders.filter((o) => new Date(o.createdAt).getTime() >= from).reduce((s, o) => s + o.subtotal, 0);
+  return visits.filter((v) => new Date(v.at).getTime() >= from).reduce((s, v) => s + v.amount, 0);
 }
 
 export function useTier() {
-  const orders = useStore((s) => s.orders);
-  const spend = spendLast12Months(orders.filter((o) => o.paid));
+  const visits = useStore((s) => s.visits);
+  const spend = spendLast12Months(visits);
   return { spend, ...tierFor(spend) };
+}
+
+const couponCode = () => Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPRSTUVYZ23456789'[Math.floor(Math.random() * 29)]).join('');
+const DAY = 24 * 3600 * 1000;
+
+/** Bu yılki doğum günü (yerel saat, gece yarısı). */
+function birthdayThisYear(b: { day: number; month: number }, now: Date) {
+  return new Date(now.getFullYear(), b.month - 1, b.day);
 }
 
 export const cartTotal = (lines: CartLine[]) => lines.reduce((s, l) => s + l.unitPrice * l.qty, 0);
@@ -193,6 +220,7 @@ const initialData = {
   reservations: [] as Reservation[],
   orderMode: 'masa' as OrderMode,
   table: '',
+  visits: [] as { at: string; amount: number }[],
 };
 
 export const useStore = create<State>()(
@@ -201,26 +229,77 @@ export const useStore = create<State>()(
       ...initialData,
       welcomed: [],
       staffLog: [],
+      birthdayGifts: [],
+      lang: deviceLang(),
+      setLang: (lang) => set({ lang }),
+
+      grantBirthdayGift: (now = new Date()) => {
+        const s = get();
+        const b = s.user?.birthday;
+        if (!s.user || !b) return;
+        // Yıl sonu/başı geçişi için geçen ve gelecek yılın doğum günü de denenir
+        for (const offset of [-1, 0, 1]) {
+          const day = birthdayThisYear(b, new Date(now.getFullYear() + offset, 0, 1));
+          const from = day.getTime() - gifts.birthday.daysBefore * DAY;
+          const until = day.getTime() + (gifts.birthday.daysAfter + 1) * DAY;
+          const key = `${s.user.phone}:${day.getFullYear()}`;
+          if (now.getTime() >= from && now.getTime() < until && !s.birthdayGifts.includes(key)) {
+            const at = now.toISOString();
+            const coupon: Coupon = {
+              id: uid('K'),
+              code: couponCode(),
+              title: 'Doğum günü tatlısı',
+              key: 'gift.birthday',
+              kind: 'gift',
+              cost: 0,
+              createdAt: at,
+              expiresAt: new Date(until).toISOString(),
+              used: false,
+            };
+            set({
+              birthdayGifts: [...s.birthdayGifts, key],
+              coupons: [coupon, ...s.coupons],
+              activity: [{ id: uid('A'), at, title: 'Doğum günü tatlısı', key: 'activity.gift', params: { gift: 'gift.birthday' } }, ...s.activity],
+            });
+            return;
+          }
+        }
+      },
       setOrderContext: (patch) => set(patch),
 
-      signIn: (name, phone) =>
+      signIn: (name, phone, birthday) => {
         set((s) => {
+          const now = new Date();
           const user: User = {
             name,
             phone,
+            birthday,
             memberNo: `DK${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`,
-            joinedAt: new Date().toISOString(),
+            joinedAt: now.toISOString(),
             secret: newSecret(),
           };
-          // Hoş geldin hediyesi (ilk çay bizden) her telefona yalnızca bir kez
+          // İlk kayıtta kahve bizden — her telefona yalnızca bir kez (çıkış/giriş ile tekrar alınamaz)
           if (s.welcomed.includes(phone)) return { user };
+          const coupon: Coupon = {
+            id: uid('K'),
+            code: couponCode(),
+            title: 'Hoş geldin kahvesi',
+            key: 'gift.welcome',
+            kind: 'gift',
+            cost: 0,
+            createdAt: now.toISOString(),
+            expiresAt: new Date(now.getTime() + gifts.welcome.validDays * DAY).toISOString(),
+            used: false,
+          };
           return {
             user,
             welcomed: [...s.welcomed, phone],
-            pearls: s.pearls + 75,
-            activity: [{ id: uid('A'), at: new Date().toISOString(), title: 'Hoş geldin hediyesi', pearls: 75 }, ...s.activity],
+            coupons: [coupon, ...s.coupons],
+            activity: [{ id: uid('A'), at: now.toISOString(), title: 'Hoş geldin kahvesi', key: 'activity.gift', params: { gift: 'gift.welcome' } }, ...s.activity],
           };
-        }),
+        });
+        get().grantBirthdayGift();
+      },
       // Aynı cihazda başka biri giriş yaparsa önceki kişinin bakiyesi, kuponları ve siparişleri görünmemeli.
       signOut: () => set({ ...initialData }),
       updateProfile: (patch) => set((s) => (s.user ? { user: { ...s.user, ...patch } } : s)),
@@ -246,7 +325,7 @@ export const useStore = create<State>()(
 
       placeOrder: (o) => {
         const s = get();
-        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const { current } = tierFor(spendLast12Months(s.visits));
         const paidNow = o.payment !== 'hesap';
         // Hesapta ödenen siparişte İnci, ödeme alındığında (markPaid) yüklenir
         const earned = paidNow ? Math.floor((o.total - o.tip) * current.rate) : 0;
@@ -265,6 +344,7 @@ export const useStore = create<State>()(
         };
         set({
           orders: [order, ...s.orders],
+          visits: paidNow ? [{ at: now, amount: o.subtotal }, ...s.visits] : s.visits,
           cart: [],
           wallet: o.payment === 'cuzdan' ? s.wallet - o.total : s.wallet,
           pearls: s.pearls - o.pearlsUsed + earned,
@@ -286,7 +366,7 @@ export const useStore = create<State>()(
         const s = get();
         const order = s.orders.find((o) => o.id === id);
         if (!order || order.paid) return;
-        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const { current } = tierFor(spendLast12Months(s.visits));
         const earned = Math.floor(order.subtotal * current.rate);
         const now = new Date().toISOString();
         // DEMO: sipariş bu cihazdaki üyeye aitse İnci doğrudan yüklenir; sunucu modunda üyenin hesabına yazılır
@@ -294,6 +374,7 @@ export const useStore = create<State>()(
         set({
           orders: s.orders.map((o) => (o.id === id ? { ...o, paid: true, paidAt: now, pearlsEarned: earned, status: 'teslim' } : o)),
           pearls: mine ? s.pearls + earned : s.pearls,
+          visits: mine ? [{ at: now, amount: order.subtotal }, ...s.visits] : s.visits,
           activity: mine
             ? [{ id: uid('A'), at: now, title: `Sipariş #${id.slice(-5)} ödendi`, pearls: earned, amount: -order.subtotal }, ...s.activity]
             : s.activity,
@@ -313,12 +394,13 @@ export const useStore = create<State>()(
         const now = Date.now();
         const recent = s.staffLog.find((l) => l.memberNo === memberNo && l.amount === amount && now - new Date(l.at).getTime() < 10 * 60000);
         if (recent) return { ok: false, reason: 'Aynı tutar bu üyeye son 10 dakikada zaten yüklendi.' };
-        const { current } = tierFor(spendLast12Months(s.orders.filter((x) => x.paid)));
+        const { current } = tierFor(spendLast12Months(s.visits));
         const earned = Math.floor(amount * current.rate);
         const at = new Date(now).toISOString();
         set({
           pearls: s.pearls + earned,
-          activity: [{ id: uid('A'), at, title: 'Restoranda harcama', pearls: earned, amount: -amount }, ...s.activity],
+          visits: [{ at, amount }, ...s.visits],
+          activity: [{ id: uid('A'), at, title: 'Restoranda harcama', key: 'activity.visit', pearls: earned, amount: -amount }, ...s.activity],
           staffLog: [{ id: uid('L'), at, memberNo, amount, pearls: earned, source }, ...s.staffLog],
         });
         return { ok: true, pearls: earned };
@@ -350,14 +432,18 @@ export const useStore = create<State>()(
           pearls: s.pearls + bonus,
           activity: [{ id: uid('A'), at: new Date().toISOString(), title: 'Cüzdana yükleme', amount, pearls: bonus }, ...s.activity],
         })),
-      redeem: (title, cost) => {
+      redeem: (rewardId, cost) => {
         if (get().pearls < cost) return null;
         const now = new Date();
+        const key = `reward.${rewardId}` as StringKey;
+        const title = translate('tr', key);
         const coupon: Coupon = {
           id: uid('K'),
           // Karışmayan karakterlerle 6 haneli kod (0/O, 1/I yok)
-          code: Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPRSTUVYZ23456789'[Math.floor(Math.random() * 29)]).join(''),
+          code: couponCode(),
           title,
+          key,
+          kind: 'reward',
           cost,
           createdAt: now.toISOString(),
           expiresAt: new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString(),
@@ -366,7 +452,7 @@ export const useStore = create<State>()(
         set((s) => ({
           pearls: s.pearls - cost,
           coupons: [coupon, ...s.coupons],
-          activity: [{ id: uid('A'), at: now.toISOString(), title: `Ödül: ${title}`, pearls: -cost }, ...s.activity],
+          activity: [{ id: uid('A'), at: now.toISOString(), title: `Ödül: ${title}`, key: 'activity.reward', params: { gift: key }, pearls: -cost }, ...s.activity],
         }));
         return coupon;
       },
@@ -386,7 +472,7 @@ export const useStore = create<State>()(
     {
       name: 'deniz-kapisi',
       storage: createJSONStorage(() => AsyncStorage),
-      version: 3,
+      version: 4,
       // v1 → v2: yearSpend kaldırıldı (artık siparişlerden hesaplanıyor), kupon/favori eklendi
       migrate: (persisted, version) => {
         const old = (persisted ?? {}) as Record<string, unknown>;
@@ -401,6 +487,14 @@ export const useStore = create<State>()(
           if (user && !user.secret) user.secret = newSecret();
           old.orders = ((old.orders as Order[] | undefined) ?? []).map((o) => ({ ...o, paid: o.paid ?? true }));
           old.staffLog = [];
+        }
+        if (version < 4) {
+          // v4: harcama kaydı (visits), doğum günü (gün/ay), dil
+          const orders = (old.orders as Order[] | undefined) ?? [];
+          old.visits = orders.filter((o) => o.paid).map((o) => ({ at: o.paidAt ?? o.createdAt, amount: o.subtotal }));
+          old.birthdayGifts = [];
+          const user = old.user as (User & { birthday?: unknown }) | null | undefined;
+          if (user && typeof user.birthday === 'string') delete user.birthday;
         }
         return { ...initialData, ...old } as unknown as State;
       },

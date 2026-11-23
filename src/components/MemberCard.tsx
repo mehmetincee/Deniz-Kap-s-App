@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
+import { pct, useT } from '../i18n';
 import { useStore, useTier } from '../store';
 import { colors, font, radius, space, textStyle } from '../theme';
 
@@ -10,6 +11,8 @@ export function MemberCard({ compact }: { compact?: boolean }) {
   const user = useStore((s) => s.user);
   const pearls = useStore((s) => s.pearls);
   const { spend, current, next, progress } = useTier();
+  const { t, locale, lang } = useT();
+  const tierName = t(`tier.${current.id}`);
 
   return (
     // Kart bir "pass" gibi davranır: içerik katmanında düz renkli yüzey, Liquid Glass değil [materials].
@@ -17,7 +20,7 @@ export function MemberCard({ compact }: { compact?: boolean }) {
     <View
       style={[styles.card, compact && { padding: space.lg }]}
       accessible
-      accessibilityLabel={`${current.name} seviyesi, ${pearls} İnci bakiyesi`}
+      accessibilityLabel={`${t('member.level', { tier: tierName })}, ${t('member.balance')}: ${pearls}`}
     >
       <Svg style={StyleSheet.absoluteFill} viewBox="0 0 340 200" preserveAspectRatio="none">
         <Path d="M0 150 C 60 130, 110 170, 170 150 S 280 130, 340 150 V200 H0Z" fill="rgba(255,255,255,0.06)" />
@@ -25,17 +28,17 @@ export function MemberCard({ compact }: { compact?: boolean }) {
       </Svg>
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.name}>{user?.name ?? 'Misafirimiz'}</Text>
-          <Text style={styles.tier}>{current.name} üye</Text>
+          <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.tier}>{t('member.level', { tier: tierName })} · {pct(current.rate, lang)}</Text>
         </View>
         <Image source={require('../../assets/images/mark-white.png')} style={{ width: 36, height: 36 }} contentFit="contain" accessibilityIgnoresInvertColors />
       </View>
 
       <View style={{ marginTop: compact ? space.md : space.xl }}>
-        <Text style={styles.label}>İnci bakiyesi</Text>
+        <Text style={styles.label}>{t('member.balance')}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-          <Text style={styles.points}>{pearls.toLocaleString('tr-TR')}</Text>
-          <Text style={styles.pointsUnit}>İnci · ₺{pearls.toLocaleString('tr-TR')} değerinde</Text>
+          <Text style={styles.points}>{pearls.toLocaleString(locale)}</Text>
+          <Text style={styles.pointsUnit}>{t('member.worth', { amount: pearls.toLocaleString(locale) })}</Text>
         </View>
       </View>
 
@@ -45,7 +48,7 @@ export function MemberCard({ compact }: { compact?: boolean }) {
             <View style={[styles.barFill, { width: `${Math.max(4, progress * 100)}%` }]} />
           </View>
           <Text style={styles.next}>
-            {next.name} seviyesine ₺{Math.max(0, next.min - spend).toLocaleString('tr-TR')} kaldı
+            {t('member.toNext', { tier: t(`tier.${next.id}`), amount: Math.max(0, next.min - spend).toLocaleString(locale) })} · {pct(next.rate, lang)}
           </Text>
         </View>
       )}

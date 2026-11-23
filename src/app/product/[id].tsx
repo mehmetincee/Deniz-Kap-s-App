@@ -6,12 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '../../components/Icon';
 import { Button, IconButton, ListSection, Material, Stepper, T, tap } from '../../components/ui';
-import { allergenNames, formatPrice, getProduct, orderBlockReason } from '../../data/menu';
+import { ordering } from '../../config/restaurant';
+import { allergenName, formatPrice, getProduct, localize, localizeOption, orderBlockReason } from '../../data/menu';
+import { useT } from '../../i18n';
 import { useStore } from '../../store';
 import { colors, font, space, textStyle } from '../../theme';
 
 export default function ProductScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t, lang } = useT();
   const insets = useSafeAreaInsets();
   const product = getProduct(id);
   const addToCart = useStore((s) => s.addToCart);
@@ -24,14 +27,17 @@ export default function ProductScreen() {
   if (!product) {
     return (
       <View style={{ flex: 1, padding: space.xl, paddingTop: insets.top + space.xl }}>
-        <T v="h2">Ürün bulunamadı</T>
-        <Button title="Geri dön" variant="secondary" onPress={() => router.back()} style={{ marginTop: space.xl }} />
+        <T v="h2">{t('product.notFound')}</T>
+        <Button title={t('product.back')} variant="secondary" onPress={() => router.back()} style={{ marginTop: space.xl }} />
       </View>
     );
   }
 
   const option = product.options?.find((o) => o.id === optionId);
   const blocked = orderBlockReason(product.id);
+  const l = localize(product, lang);
+  // Sipariş kapalıyken (QR menü modu) sayfa yalnızca bilgi gösterir; seçim, not ve "Ekle" yok
+  const canOrder = ordering.enabled && !product.askWaiter;
   const unit = option?.price ?? product.price;
 
   // Sayfa (sheet) olarak açılır: aşağı kaydırarak kapanır [sheets].
@@ -50,35 +56,36 @@ export default function ProductScreen() {
         )}
 
         <View style={{ padding: space.lg }}>
-          <T v="h1">{product.name}</T>
-          {!!product.nameEn && !product.nameEn.includes(',') && <Text style={styles.en}>{product.nameEn}</Text>}
-          {!!product.description && <T style={{ marginTop: space.md }}>{product.description}</T>}
-          {!!product.descriptionEn && <Text style={styles.descEn}>{product.descriptionEn}</Text>}
+          <T v="h1">{l.title}</T>
+          {!!l.alt && <Text style={styles.en}>{l.alt}</Text>}
+          {!!l.description && <T style={{ marginTop: space.md }}>{l.description}</T>}
+          {!product.options && <Text style={styles.price}>{product.askWaiter ? t('menu.askWaiter') : formatPrice(product.price)}</Text>}
         </View>
 
         {/* [lists-and-tables] "a table that lists options… adding an image — such as a checkmark — indicating that the item is selected" */}
         {product.options && (
-          <ListSection header={product.optionsTitle} style={styles.section}>
+          <ListSection header={t(product.optionsTitle === 'Sos seçimi' ? 'product.sauce' : 'product.choice')} style={styles.section}>
             {product.options.map((o) => {
               const active = o.id === optionId;
               return (
                 <Pressable
                   key={o.id}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: active }}
+                  accessibilityRole={canOrder ? 'radio' : 'text'}
+                  accessibilityState={canOrder ? { checked: active } : undefined}
+                  disabled={!canOrder}
                   onPress={() => (tap(), setOptionId(o.id))}
                   style={({ pressed }) => [styles.option, pressed && { backgroundColor: colors.fill }]}
                 >
-                  <Text style={styles.optionName}>{o.name}</Text>
+                  <Text style={styles.optionName}>{localizeOption(o.name, lang)}</Text>
                   <Text style={styles.optionPrice}>{formatPrice(o.price)}</Text>
-                  <View style={{ width: 22, alignItems: 'flex-end' }}>{active && <Icon name="check" size={17} color={colors.accent} weight="semibold" />}</View>
+                  <View style={{ width: 22, alignItems: 'flex-end' }}>{canOrder && active && <Icon name="check" size={17} color={colors.accent} weight="semibold" />}</View>
                 </Pressable>
               );
             })}
           </ListSection>
         )}
 
-        {!product.askWaiter && (
+        {canOrder && (
           <ListSection header="Mutfağa not" style={styles.section}>
             <TextInput
               value={note}
@@ -94,16 +101,16 @@ export default function ProductScreen() {
 
         {product.allergens.length > 0 && (
           // [color › Inclusive color] alerjenler adlarıyla yazılır, yalnızca simge/renkle değil
-          <Text style={[styles.allergens]}>İçerir: {product.allergens.map((a) => allergenNames[a]).join(', ')}</Text>
+          <Text style={[styles.allergens]}>{t('product.contains', { list: product.allergens.map((a) => allergenName(a, lang)).join(', ') })}</Text>
         )}
       </ScrollView>
 
       <View style={[styles.topBar, { top }]} pointerEvents="box-none">
-        <IconButton name="close" label="Kapat" overMedia={!!product.image} onPress={() => router.back()} />
+        <IconButton name="close" label={t('product.close')} overMedia={!!product.image} onPress={() => router.back()} />
         <IconButton
           name={isFavorite ? 'heart-filled' : 'heart'}
           color={isFavorite ? colors.red : colors.label}
-          label={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          label={t(isFavorite ? 'product.favRemove' : 'product.favAdd')}
           overMedia={!!product.image}
           onPress={() => toggleFavorite(product.id)}
         />
@@ -112,7 +119,14 @@ export default function ProductScreen() {
       {/* Alt eylem alanı kontrol katmanıdır: içerik altından kayar, sistem malzemesi üzerinde durur [materials], [layout] */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
         <Material style={[StyleSheet.absoluteFill, { borderRadius: 0 }]} />
-        {product.askWaiter ? (
+        {!canOrder ? (
+          <View style={{ flex: 1, alignItems: 'center', gap: 4, paddingVertical: space.sm }}>
+            <Icon name="info" size={18} color={colors.accent} />
+            <T v="secondary" style={{ textAlign: 'center' }}>
+              {t('product.orderHint')}
+            </T>
+          </View>
+        ) : product.askWaiter ? (
           <T v="secondary" style={{ flex: 1, textAlign: 'center' }}>
             Günün balığını garsonunuzla birlikte seçebilirsiniz.
           </T>
@@ -147,6 +161,7 @@ const styles = StyleSheet.create({
   heroPlaceholder: { backgroundColor: colors.fill, alignItems: 'center', justifyContent: 'center' },
   topBar: { position: 'absolute', left: space.lg, right: space.lg, flexDirection: 'row', justifyContent: 'space-between' },
   en: { ...font.serifItalic, ...textStyle.title3, color: colors.secondaryLabel, marginTop: 2 },
+  price: { ...font.semibold, ...textStyle.headline, color: colors.label, marginTop: space.md },
   descEn: { ...font.serifItalic, ...textStyle.subhead, color: colors.secondaryLabel, marginTop: space.sm },
   section: { marginHorizontal: space.lg, marginTop: space.md },
   option: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 48, paddingHorizontal: space.lg },

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useT } from '../i18n';
 import { colors, font, hit, radius, space, textStyle, type } from '../theme';
 import { Icon, type IconName } from './Icon';
 
@@ -181,13 +182,14 @@ export function Chip({ label, active, onPress, style }: { label: string; active?
 export function Stepper({ value, onChange, min = 0, small }: { value: number; onChange: (n: number) => void; min?: number; small?: boolean }) {
   const s = small ? 32 : hit;
   const slop = (hit - s) / 2;
+  const { t } = useT();
   return (
     <View style={styles.stepper} accessibilityRole="adjustable" accessibilityValue={{ now: value }}>
-      <Pressable accessibilityLabel="Azalt" hitSlop={slop} onPress={() => (tap(), onChange(Math.max(min, value - 1)))} style={[styles.stepBtn, { width: s, height: s }]}>
+      <Pressable accessibilityLabel={t('common.decrease')} hitSlop={slop} onPress={() => (tap(), onChange(Math.max(min, value - 1)))} style={[styles.stepBtn, { width: s, height: s }]}>
         <Icon name="minus" size={small ? 14 : 17} color={colors.accent} weight="semibold" />
       </Pressable>
       <Text style={[styles.stepValue, small && { ...textStyle.subhead, minWidth: 22 }]}>{value}</Text>
-      <Pressable accessibilityLabel="Arttır" hitSlop={slop} onPress={() => (tap(), onChange(value + 1))} style={[styles.stepBtn, { width: s, height: s }]}>
+      <Pressable accessibilityLabel={t('common.increase')} hitSlop={slop} onPress={() => (tap(), onChange(value + 1))} style={[styles.stepBtn, { width: s, height: s }]}>
         <Icon name="plus" size={small ? 14 : 17} color={colors.accent} weight="semibold" />
       </Pressable>
     </View>
